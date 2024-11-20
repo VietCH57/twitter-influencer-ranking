@@ -1,26 +1,45 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class Tweet extends Node {
-    private String content;
-    private List<User> interactions;
+    private int userId;
+    private int likeCount;
+    private int replyCount;
+    private int retweetCount;
+    private String linkToTweet;
 
-    public Tweet(int id, String content) {
+    public Tweet() {
+        super();
+        this.userId = 0;
+        this.likeCount = 0;
+        this.replyCount = 0;
+        this.retweetCount = 0;
+        this.linkToTweet = null;
+    }
+
+    public Tweet(int id, int userId, int likeCount, int replyCount, int retweetCount, String linkToTweet) {
         super(id);
-        this.content = content;
-        this.interactions = new ArrayList<>();
+        this.userId = userId;
+        this.likeCount = likeCount;
+        this.replyCount = replyCount;
+        this.retweetCount = retweetCount;
+        this.linkToTweet = linkToTweet;
     }
 
-    public void addInteraction(User user) {
-        interactions.add(user);
+    public int getUserId() {
+        return userId;
     }
 
-    public List<User> getInteractions() {
-        return interactions;
+    public int getLikeCount() {
+        return likeCount;
     }
 
-    @Override
-    public String toString() {
-        return "Tweet{" + "id=" + id + ", content='" + content + '\'' + '}';
+    public int getReplyCount() {
+        return replyCount;
+    }
+
+    public int getRetweetCount() {
+        return retweetCount;
+    }
+
+    public String getLinkToTweet() {
+        return linkToTweet;
     }
 }

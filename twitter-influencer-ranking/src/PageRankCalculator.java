@@ -1,42 +1,44 @@
-import java.util.Map;
+import java.util.*;
 
 public class PageRankCalculator {
     private static final double DAMPING_FACTOR = 0.85;
+    private static final double EPSILON = 0.0001;
     private static final int MAX_ITERATIONS = 100;
-    private static final double CONVERGENCE_THRESHOLD = 1e-6;
 
-    public static void calculate(Graph graph) {
-        Map<Integer, Node> nodes = graph.getNodes();
-        int totalNodes = nodes.size();
-        double initialRank = 1.0 / totalNodes;
+    public Map<Node, Double> calculate(Graph graph) {
+        Map<Node, Double> ranks = new HashMap<>();
+        Set<Node> nodes = new HashSet<>(graph.getAllNodes());
 
-        // Initialize all nodes with equal rank
-        for (Node node : nodes.values()) {
-            node.setPageRank(initialRank);
+        // Khởi tạo rank ban đầuE
+        double initialRank = 1.0 / nodes.size();
+        for (Node node : nodes) {
+            ranks.put(node, initialRank);
         }
 
+        // Lặp cho đến khi hội tụ
         for (int i = 0; i < MAX_ITERATIONS; i++) {
-            double totalDifference = 0;
+            Map<Node, Double> newRanks = new HashMap<>();
+            double maxDiff = 0.0;
 
-            for (Node node : nodes.values()) {
-                double rankSum = 0;
-
-                if (node instanceof User) {
-                    User user = (User) node;
-                    for (User follower : user.getFollowers()) {
-                        rankSum += follower.getPageRank() / follower.getFollowing().size();
-                    }
+            for (Node node : nodes) {
+                double sum = 0.0;
+                for (Edge edge : graph.getOutgoingEdges(node)) {
+                    Node source = edge.getSource();
+                    double sourceRank = ranks.get(source);
+                    double weight = edge.getWeight();
+                    sum += sourceRank * weight;
                 }
 
-                // Apply damping factor
-                double newRank = (1 - DAMPING_FACTOR) / totalNodes + DAMPING_FACTOR * rankSum;
-                totalDifference += Math.abs(newRank - node.getPageRank());
-                node.setPageRank(newRank);
+                double newRank = (1 - DAMPING_FACTOR) / nodes.size() +
+                        DAMPING_FACTOR * sum;
+                newRanks.put(node, newRank);
+                maxDiff = Math.max(maxDiff, Math.abs(newRank - ranks.get(node)));
             }
 
-            if (totalDifference < CONVERGENCE_THRESHOLD) {
-                break;
-            }
+            ranks = newRanks;
+            if (maxDiff < EPSILON) break;
         }
+
+        return ranks;
     }
 }

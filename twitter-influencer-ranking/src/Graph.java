@@ -1,41 +1,24 @@
-import java.util.HashMap;
-import java.util.Map;
-
 public class Graph {
-    private Map<Integer, Node> nodes;
-    private Map<Integer, User> users;
+    private Map<Node, List<Edge>> adjacencyList;
 
     public Graph() {
-        nodes = new HashMap<>();
-        users = new HashMap<>();
+        this.adjacencyList = new HashMap<>();
     }
 
-    public void addUser(User user) {
-        nodes.put(user.getId(), user);
-        users.put(user.getId(), user);
+    public void addNode(Node node) {
+        adjacencyList.putIfAbsent(node, new ArrayList<>());
     }
 
-    public void addTweet(Tweet tweet) {
-        nodes.put(tweet.getId(), tweet);
+    public void addEdge(Node source, Node target, EdgeType type, double weight) {
+        Edge edge = new Edge(source, target, type, weight);
+        adjacencyList.get(source).add(edge);
     }
 
-    public void addEdge(int sourceId, int targetId) {
-        Node source = nodes.get(sourceId);
-        Node target = nodes.get(targetId);
-
-        if (source instanceof User && target instanceof User) {
-            ((User) source).addFollowing((User) target);
-            ((User) target).addFollower((User) source);
-        } else if (source instanceof User && target instanceof Tweet) {
-            ((Tweet) target).addInteraction((User) source);
-        }
+    public List<Edge> getOutgoingEdges(Node node) {
+        return adjacencyList.getOrDefault(node, new ArrayList<>());
     }
 
-    public Map<Integer, Node> getNodes() {
-        return nodes;
-    }
-
-    public Map<Integer, User> getUsers() {
-        return users;
+    public Set<Node> getAllNodes() {
+        return adjacencyList.keySet();
     }
 }

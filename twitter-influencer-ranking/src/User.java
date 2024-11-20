@@ -1,38 +1,37 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class User extends Node {
-    private String name;
     private String username;
-    private List<User> followers;
-    private List<User> following;
+    private int followerCount;
+    private int followingCount;
+    private String linkToProfile;
 
-    public User(int id, String name, String username) {
+    public User() {
+        super();
+        this.username = null;
+        this.followerCount = 0;
+        this.followingCount = 0;
+        this.linkToProfile = null;
+    }
+    public User(int id, String username, int followerCount, int followingCount, String linkToProfile) {
         super(id);
-        this.name = name;
         this.username = username;
-        this.followers = new ArrayList<>();
-        this.following = new ArrayList<>();
+        this.followerCount = followerCount;
+        this.followingCount = followingCount;
+        this.linkToProfile = linkToProfile;
     }
 
-    public void addFollower(User follower) {
-        followers.add(follower);
+    public String getUsername() {
+        return username;
     }
 
-    public void addFollowing(User followee) {
-        following.add(followee);
+    public int getFollowerCount() {
+        return followerCount;
     }
 
-    public List<User> getFollowers() {
-        return followers;
+    public int getFollowingCount() {
+        return followingCount;
     }
 
-    public List<User> getFollowing() {
-        return following;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" + "id=" + id + ", name='" + name + '\'' + ", username='" + username + '\'' + '}';
+    public String getLinkToProfile() {
+        return linkToProfile;
     }
 }

@@ -1,10 +1,14 @@
 public class KoL extends User {
-    public KoL(int id, String name, String username) {
-        super(id, name, username);
+    private static final int MIN_FOLLOWER_COUNT = 10000;
+
+    public KoL() {
+        super();
     }
 
-    @Override
-    public String toString() {
-        return "KoL{" + "id=" + id + ", name='" + super.toString() + '}';
+    public KoL(int id, String username, int followerCount, int followingCount, String linkToProfile) {
+        super(id, username, followerCount, followingCount, linkToProfile);
+        if (followerCount < MIN_FOLLOWER_COUNT) {
+            throw new IllegalArgumentException("Follower count too low for KOL classification");
+        }
     }
 }
