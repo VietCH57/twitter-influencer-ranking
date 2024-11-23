@@ -1,7 +1,7 @@
 package TwitterInfluencerRanking;
 
 public class KoL extends User {
-    private static final int MIN_FOLLOWER_COUNT = 300;
+    public static final int MIN_FOLLOWER_COUNT = 300;
 
     public KoL() {
         super();
