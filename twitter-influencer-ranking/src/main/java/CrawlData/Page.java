@@ -16,8 +16,8 @@ public class Page {
     private String numOfRepostInHotTweet;
     List<String> listFollower = new ArrayList<String>();
     List<String> listFollowing = new ArrayList<>();
-    List<String> listUserNameRepost = new ArrayList<>();
-    List<String> listUserNameComment = new ArrayList<>();
+    //List<String> listUserNameRepost = new ArrayList<>();
+    //List<String> listUserNameComment = new ArrayList<>();
     private static int i = 0;
     private int id;
     ExcelFileWriter excelFileWriter = new ExcelFileWriter();
@@ -35,7 +35,7 @@ public class Page {
         this.numOfRepostInHotTweet = null;
         this.listFollower = null;
         this.listFollowing = null;
-        this.listUserNameRepost = null;
+        //this.listUserNameRepost = null;
         id = i;
     }
 
@@ -59,9 +59,9 @@ public class Page {
     public void setlistFollowing(List<String> userNameFollowing){
         listFollowing.addAll(userNameFollowing);
     }
-    public void setlistUserNameRepost(List<String> userNameRepost){
+    /*public void setlistUserNameRepost(List<String> userNameRepost){
         listUserNameRepost.addAll(userNameRepost);
-    }
+    }*/
 
     public int getID(){
         return id;
