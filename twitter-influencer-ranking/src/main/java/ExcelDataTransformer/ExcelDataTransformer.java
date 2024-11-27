@@ -6,12 +6,10 @@ import java.io.*;
 import java.util.*;
 
 public class ExcelDataTransformer {
-    // Change this to your actual file path
-    private static final String INPUT_FILE = "D:\\OOP Project\\twitter-influencer-ranking\\twitter-influencer-ranking\\input.xlsx"; // Change this
+    private static final String INPUT_FILE = "D:\\OOP Project\\twitter-influencer-ranking\\twitter-influencer-ranking\\input.xlsx";
     private static final String OUTPUT_FILE = "transformed_data.xlsx";
 
     public void transformData() {
-        // Print working directory for debugging
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
 
         File inputFile = new File(INPUT_FILE);
@@ -27,16 +25,10 @@ public class ExcelDataTransformer {
 
             Workbook outputWorkbook = new XSSFWorkbook();
 
-            // Transform Sheet1 into separate Users and Tweets sheets
             transformUserAndTweetSheets(inputWorkbook, outputWorkbook);
-
-            // Transform Follower/Following relationships
             transformRelationshipSheets(inputWorkbook, outputWorkbook);
-
-            // Transform Repost data
             transformRepostSheet(inputWorkbook, outputWorkbook);
 
-            // Write the output file
             try (FileOutputStream fos = new FileOutputStream(OUTPUT_FILE)) {
                 outputWorkbook.write(fos);
             }
@@ -68,40 +60,36 @@ public class ExcelDataTransformer {
             tweetHeader.createCell(i).setCellValue(tweetHeaders[i]);
         }
 
-        // Process data rows
         int userRowNum = 1;
         int tweetRowNum = 1;
-        int userId = 1; // Auto-increment ID for users
-        int tweetId = 1; // Auto-increment ID for tweets
-        Map<String, Integer> userIdMap = new HashMap<>(); // To track userName -> userId mapping
+        int userId = 1;
+        int tweetId = 1;
+        Map<String, Integer> userIdMap = new HashMap<>();
 
         for (Row row : inputSheet) {
-            if (row.getRowNum() == 0) continue; // Skip header
+            if (row.getRowNum() == 0) continue;
 
             String userName = getCellValueAsString(row.getCell(0));
             if (userName == null || userName.trim().isEmpty()) continue;
 
-            // Create User row
             Row userRow = userSheet.createRow(userRowNum++);
-            userRow.createCell(0).setCellValue(userId); // userId
-            userRow.createCell(1).setCellValue(userName); // userName
-            userRow.createCell(2).setCellValue(getCellValueAsString(row.getCell(1))); // name
-            userRow.createCell(3).setCellValue(getCellValueAsString(row.getCell(2))); // linkUser
-            userRow.createCell(4).setCellValue(getNumericCellValue(row.getCell(3))); // numOfFollower
-            userRow.createCell(5).setCellValue(getNumericCellValue(row.getCell(4))); // numOfFollowing
-            userRow.createCell(6).setCellValue(getNumericCellValue(row.getCell(5))); // numOfView
+            userRow.createCell(0).setCellValue(userId);
+            userRow.createCell(1).setCellValue(userName);
+            userRow.createCell(2).setCellValue(getCellValueAsString(row.getCell(1)));
+            userRow.createCell(3).setCellValue(getCellValueAsString(row.getCell(2)));
+            userRow.createCell(4).setCellValue(getNumericCellValue(row.getCell(3)));
+            userRow.createCell(5).setCellValue(getNumericCellValue(row.getCell(4)));
+            userRow.createCell(6).setCellValue(getNumericCellValue(row.getCell(5)));
 
-            // Store userId mapping
             userIdMap.put(userName, userId);
 
-            // Create Tweet row
             Row tweetRow = tweetSheet.createRow(tweetRowNum++);
-            tweetRow.createCell(0).setCellValue(tweetId++); // tweetId
-            tweetRow.createCell(1).setCellValue(userId); // userId (foreign key)
-            tweetRow.createCell(2).setCellValue(getNumericCellValue(row.getCell(6))); // numOfReact
-            tweetRow.createCell(3).setCellValue(getNumericCellValue(row.getCell(7))); // numOfRepost
-            tweetRow.createCell(4).setCellValue(getNumericCellValue(row.getCell(8))); // numOfComment
-            tweetRow.createCell(5).setCellValue(getCellValueAsString(row.getCell(9))); // linkTweet
+            tweetRow.createCell(0).setCellValue(tweetId++);
+            tweetRow.createCell(1).setCellValue(userId);
+            tweetRow.createCell(2).setCellValue(getNumericCellValue(row.getCell(6)));
+            tweetRow.createCell(3).setCellValue(getNumericCellValue(row.getCell(7)));
+            tweetRow.createCell(4).setCellValue(getNumericCellValue(row.getCell(8)));
+            tweetRow.createCell(5).setCellValue(getCellValueAsString(row.getCell(9)));
 
             userId++;
         }
@@ -110,7 +98,6 @@ public class ExcelDataTransformer {
     private void transformRelationshipSheets(Workbook input, Workbook output) {
         Sheet outputSheet = output.createSheet("UserFollows");
 
-        // Create header row
         Row headerRow = outputSheet.createRow(0);
         headerRow.createCell(0).setCellValue("id");
         headerRow.createCell(1).setCellValue("targetUserId");
@@ -120,10 +107,8 @@ public class ExcelDataTransformer {
         int outputRow = 1;
         int relationshipId = 1;
 
-        // Process followers sheet
         processRelationships(input.getSheetAt(1), outputSheet, "FOLLOWER", outputRow, relationshipId);
 
-        // Process following sheet
         outputRow = outputSheet.getLastRowNum() + 1;
         relationshipId = outputRow;
         processRelationships(input.getSheetAt(2), outputSheet, "FOLLOWING", outputRow, relationshipId);
@@ -135,30 +120,42 @@ public class ExcelDataTransformer {
         int currentId = startingId;
 
         for (Row row : inputSheet) {
-            if (row.getRowNum() == 0) continue; // Skip header
+            if (row.getRowNum() == 0) continue;
 
             String targetUser = getCellValueAsString(row.getCell(0));
             if (targetUser == null || targetUser.trim().isEmpty()) continue;
 
-            // Process all related users (starting from column B)
-            for (int i = 1; i < row.getLastCellNum(); i += 3 ){ // Skip link columns
+            int targetUserId;
+            try {
+                targetUserId = Integer.parseInt(targetUser.replace("User", ""));
+            } catch (NumberFormatException e) {
+                continue;
+            }
+
+            for (int i = 1; i < row.getLastCellNum(); i += 3) {
                 String relatedUser = getCellValueAsString(row.getCell(i));
                 if (relatedUser == null || relatedUser.trim().isEmpty()) continue;
 
+                int relatedUserId;
+                try {
+                    relatedUserId = Integer.parseInt(relatedUser.replace("User", ""));
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+
                 Row outputRow = outputSheet.createRow(currentRow++);
-                outputRow.createCell(0).setCellValue(currentId++); // id
-                outputRow.createCell(1).setCellValue(targetUser);
-                outputRow.createCell(2).setCellValue(relatedUser);
+                outputRow.createCell(0).setCellValue(currentId++);
+                outputRow.createCell(1).setCellValue(targetUserId);
+                outputRow.createCell(2).setCellValue(relatedUserId);
                 outputRow.createCell(3).setCellValue(relationshipType);
             }
         }
     }
 
     private void transformRepostSheet(Workbook input, Workbook output) {
-        Sheet inputSheet = input.getSheetAt(3); // Sheet4-User repost
+        Sheet inputSheet = input.getSheetAt(3);
         Sheet outputSheet = output.createSheet("TweetInteractions");
 
-        // Create header row
         Row headerRow = outputSheet.createRow(0);
         headerRow.createCell(0).setCellValue("id");
         headerRow.createCell(1).setCellValue("tweetId");
@@ -169,20 +166,33 @@ public class ExcelDataTransformer {
         int interactionId = 1;
 
         for (Row row : inputSheet) {
-            if (row.getRowNum() == 0) continue; // Skip header
+            if (row.getRowNum() == 0) continue;
 
             String originalUser = getCellValueAsString(row.getCell(0));
             if (originalUser == null || originalUser.trim().isEmpty()) continue;
 
-            // Process all reposting users
+            int originalUserId;
+            try {
+                originalUserId = Integer.parseInt(originalUser.replace("User", ""));
+            } catch (NumberFormatException e) {
+                continue;
+            }
+
             for (int i = 1; i < row.getLastCellNum(); i += 3) {
                 String repostUser = getCellValueAsString(row.getCell(i));
                 if (repostUser == null || repostUser.trim().isEmpty()) continue;
 
+                int repostUserId;
+                try {
+                    repostUserId = Integer.parseInt(repostUser.replace("User", ""));
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+
                 Row newRow = outputSheet.createRow(outputRow++);
                 newRow.createCell(0).setCellValue(interactionId++);
-                newRow.createCell(1).setCellValue(originalUser); // Will need to be mapped to actual tweetId
-                newRow.createCell(2).setCellValue(repostUser);
+                newRow.createCell(1).setCellValue(originalUserId);
+                newRow.createCell(2).setCellValue(repostUserId);
                 newRow.createCell(3).setCellValue("RETWEET");
             }
         }
@@ -190,25 +200,26 @@ public class ExcelDataTransformer {
 
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
-        switch (cell.getCellType()) {
-            case STRING: return cell.getStringCellValue();
-            case NUMERIC: return String.valueOf((long)cell.getNumericCellValue());
-            default: return null;
-        }
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> String.valueOf((long)cell.getNumericCellValue());
+            default -> null;
+        };
     }
 
     private double getNumericCellValue(Cell cell) {
         if (cell == null) return 0;
-        switch (cell.getCellType()) {
-            case NUMERIC: return cell.getNumericCellValue();
-            case STRING:
+        return switch (cell.getCellType()) {
+            case NUMERIC -> cell.getNumericCellValue();
+            case STRING -> {
                 try {
-                    return Double.parseDouble(cell.getStringCellValue());
+                    yield Double.parseDouble(cell.getStringCellValue());
                 } catch (NumberFormatException e) {
-                    return 0;
+                    yield 0;
                 }
-            default: return 0;
-        }
+            }
+            default -> 0;
+        };
     }
 
     public static void main(String[] args) {
