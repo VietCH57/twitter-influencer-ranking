@@ -13,7 +13,7 @@ public class ExcelFileWriter {
     private static Sheet sheet1 = workbook.createSheet("User");
     private static Sheet sheet2 = workbook.createSheet("User Follower");
     private static Sheet sheet3 = workbook.createSheet("User Following");
-    private static Sheet sheet4 = workbook.createSheet("User Repost");
+    //private static Sheet sheet4 = workbook.createSheet("User Repost");
     private static int currentRow = 0;
 
     public ExcelFileWriter() {}
@@ -45,18 +45,18 @@ public class ExcelFileWriter {
             row3.createCell(i).setCellValue(page.listFollowing.get(i));
         }
 
-        Row row4 = sheet4.createRow(currentRow);
+        /*Row row4 = sheet4.createRow(currentRow);
 
         for (int i = 0; i < page.listUserNameRepost.size(); i++) {
             row4.createCell(i).setCellValue(page.listUserNameRepost.get(i));
-        }
+        } */
 
         currentRow++;
 
     }
 
     public static void saveToFile(){
-        String fileName = "D:/Documents D";
+        String fileName = "D:\\Documents D\\CrawlResult.xlsx";
         try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
             workbook.write(fileOut);
             System.out.println("File written to: " + fileName);
