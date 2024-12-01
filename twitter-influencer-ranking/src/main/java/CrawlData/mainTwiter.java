@@ -3,8 +3,6 @@ package CrawlData;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -54,39 +52,38 @@ public class mainTwiter {
 
         try {
             // Lấy name người dùng
-            WebElement Name = xPathTweet.findElement(By.xpath(".//div/div/div[2]/div[2]/div[1]/div/div[1]/div/div/div[1]/div/a/div/div[1]/span/span"));
+            WebElement Name = xPathTweet.findElement(By.xpath(".//div[2]/div[1]/div/div[1]/div/div/div[1]/div/a/div/div[1]/span/span"));
             name = Name.getText();
             // Lấy username người dùng
-            WebElement userName = xPathTweet.findElement(By.xpath(".//div/div/div[2]/div[2]/div[1]/div[1]/div[1]/div/div/div[2]/div/div[1]"));
+            WebElement userName = xPathTweet.findElement(By.xpath(".//div[2]/div[1]/div[1]/div[1]/div/div/div[2]/div/div[1]"));
             username = userName.getText();
             // Lấy link user
-            WebElement linkPage = xPathTweet.findElement(By.xpath(".//div/div/div[2]/div[2]/div[1]/div/div[1]/div/div/div[1]/div/a"));
+            WebElement linkPage = xPathTweet.findElement(By.xpath(".//div[2]/div[1]/div/div[1]/div/div/div[1]/div/a"));
             linkpage = linkPage.getAttribute("href");
             // Lấy link Tweet
-            WebElement linkTweet = xPathTweet.findElement(By.xpath(".//div/div/div[2]/div[2]/div[1]/div/div[1]/div/div/div[2]/div/div[3]/a"));
+            WebElement linkTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[1]/div/div[1]/div/div/div[2]/div/div[3]/a"));
             linkhottweet = linkTweet.getAttribute("href");
             // Lấy số view
-            WebElement numOfViewInHotTweet = xPathTweet.findElement(By.xpath(".//div/div/div[2]/div[2]/div[4]/div/div/div[4]/a/div/div[2]"));
+            WebElement numOfViewInHotTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[4]/div/div/div[4]/a/div/div[2]"));
             numofviewinhottweet = numOfViewInHotTweet.getText();
             // Lấy số react
-            WebElement numOfReactInHotTweet = xPathTweet.findElement(By.xpath(".//div/div/div[2]/div[2]/div[4]/div/div/div[3]/button/div/div[2]"));
+            WebElement numOfReactInHotTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[4]/div/div/div[3]/button/div/div[2]"));
             numofreactinhottweet = numOfReactInHotTweet.getText();
             //Lấy số cmt
-            WebElement numOfCommentInHotTweet = xPathTweet.findElement(By.xpath(".//div/div/div[2]/div[2]/div[4]/div/div/div[1]/button/div/div[2]"));
+            WebElement numOfCommentInHotTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[4]/div/div/div[1]/button/div/div[2]"));
             numofcommentinhottweet = numOfCommentInHotTweet.getText();
             // Lấy số repost
-            WebElement numOfRepostInHotTweet = xPathTweet.findElement(By.xpath(".//div/div/div[2]/div[2]/div[4]/div/div/div[2]/button/div/div[2]"));
+            WebElement numOfRepostInHotTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[4]/div/div/div[2]/button/div/div[2]"));
             numofrepostinhottweet = numOfRepostInHotTweet.getText();
             System.out.println(linkpage);
             System.out.println(linkhottweet);
 
             // Mở trang cá nhân và tweet để lấy dữ liệu
             ((JavascriptExecutor) driver).executeScript("window.open('" + linkpage + "', '_blank');");
-            //((JavascriptExecutor) driver).executeScript("window.open('" + linkhottweet + "', '_blank');");
             Thread.sleep(500);
             List<String> tabs = new ArrayList<>(driver.getWindowHandles());
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-            driver.switchTo().window(tabs.get(1));
+            driver.switchTo().window(tabs.get(tabs.size() - 1));
             try {
                 WebElement numOfFollowing = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[6]/div[1]/a/span[1]"));
                 numoffollowing = numOfFollowing.getText();
@@ -109,14 +106,25 @@ public class mainTwiter {
             driver.navigate().to(linkpage + "/followers");
             Thread.sleep(5000);
             page.setlistFollower(crawlUserNameFollowingFollowers(driver, js));
-            //driver.switchTo().window(tabs.get(2));
+            driver.navigate().to(linkhottweet + "/retweets");
+            Thread.sleep(5000);
+            page.setlistUserNameRepost(crawlUserNameRepost(driver, js));
+            driver.navigate().to(linkhottweet);
+            Thread.sleep(5000);
+            page.setlistUserNameComment(crawlUserNameComment(driver, js));
             driver.close();
-            //driver.switchTo().window(tabs.get(1));
-            //driver.close();
             driver.switchTo().window(tabs.get(0));
             page.writeToExcel();
         } catch (Exception e) {
             System.out.println("Có lỗi xảy ra khi lấy thông tin từ một tweet: " + e.getMessage());
+        } finally {
+            List<String> tabs = new ArrayList<>(driver.getWindowHandles());
+            String currentHandle = driver.getWindowHandle();
+            if (!currentHandle.equals(tabs.get(0))){
+            driver.close();
+            driver.switchTo().window(tabs.get(0));
+            }
+
         }
     }
 
@@ -152,6 +160,84 @@ public class mainTwiter {
         return usernames;
     }
 
+    public static List<String> crawlUserNameRepost (WebDriver driver, JavascriptExecutor js) {
+        // Tập hợp để lưu trữ các userretweet đã tìm thấy (để tránh trùng lặp)
+        List<String> userretweetdetects  = new ArrayList<>();
+
+        try {
+                // Tìm các phần tử user
+                for (int i = 1; i <=5 ; i++) {
+                    List<WebElement> userretweets = driver.findElements(By.xpath("//section/div/div/div/div/div/button/div/div[2]/div[1]/div[1]/div/div[2]/div/a/div/div/span"));
+                    for (WebElement userretweet : userretweets) {
+                        try {
+                            // Lấy tên người dùng
+                            String userretweetdetect = userretweet.getText();
+                            if (!userretweetdetects.contains(userretweetdetect)) {
+                                userretweetdetects.add(userretweetdetect);
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Có lỗi khi lấy dữ liệu từ 1 repost" + e.getMessage());
+                            continue;
+                        }
+                    }
+                    js.executeScript("window.scrollBy(0, 2000);");
+                    Thread.sleep(3000);
+                    js.executeScript("window.scrollBy(0, 2000);");
+                    Thread.sleep(3000);
+                    js.executeScript("window.scrollBy(0, 2000);");
+                    Thread.sleep(3000);
+                    js.executeScript("window.scrollBy(0, 2000);");
+                    Thread.sleep(3000);
+                    js.executeScript("window.scrollBy(0, -4000);");
+                    System.out.println("Đã cuộn xuống 4000px");
+                    Thread.sleep(3000);
+
+                }
+        } catch (Exception e) {
+            System.out.println("Lỗi khi lấy danh sách repost: " + e.getMessage());
+        }
+        System.out.println(userretweetdetects.size());
+        return userretweetdetects;
+    }
+
+    public static List<String> crawlUserNameComment (WebDriver driver, JavascriptExecutor js) {
+        List<String> usercommentdetects = new ArrayList<>();
+        // Tìm các phần tử user
+        try {
+            for (int i = 1; i <= 6; i++) {
+                List<WebElement> usercomments = driver.findElements(By.xpath("//section/div/div/div/div/div/article/div/div/div[2]/div[2]/div[1]/div/div[1]/div/div/div[2]/div/div[1]/a/div/span"));
+                for (WebElement usercomment : usercomments) {
+                    try {
+                        // Lấy tên người dùng
+                        String usercommentdetect = usercomment.getText();
+                        if (!usercommentdetects.contains(usercommentdetect)) {
+                            usercommentdetects.add(usercommentdetect);
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Có lỗi khi lấy dữ liệu từ 1 comment" + e.getMessage());
+                        continue;
+                    }
+                }
+                js.executeScript("window.scrollBy(0, 2500);");
+                Thread.sleep(3000);
+                js.executeScript("window.scrollBy(0, 2500);");
+                Thread.sleep(3000);
+                js.executeScript("window.scrollBy(0, 2500);");
+                Thread.sleep(3000);
+                js.executeScript("window.scrollBy(0, 2500);");
+                Thread.sleep(3000);
+                js.executeScript("window.scrollBy(0, -5000);");
+                System.out.println("Đã cuộn xuống 5000px");
+                Thread.sleep(3000);
+
+            }
+        } catch (Exception e) {
+        System.out.println("Lỗi khi lấy danh sách comment: " + e.getMessage());
+        }
+        usercommentdetects.remove(0);
+        System.out.println(usercommentdetects.size());
+        return usercommentdetects;
+    }
 
     public static void main(String[] args) {
         // Đường dẫn tới geckodriver
@@ -182,7 +268,7 @@ public class mainTwiter {
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
             // Điền tên người dùng hoặc email
             WebElement usernameInput = driver.findElement(By.name("text"));
-            usernameInput.sendKeys("nkhuy05@gmail.com");
+            usernameInput.sendKeys("nkhuy05@gmail.com"); //Nhập email của bạn vào trong ""
             //Nhấn nút tiếp tục (Next)
             WebElement nextButton = driver.findElement(By.xpath("/html/body/div/div/div/div[1]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/button[2]/div"));
             nextButton.click();
@@ -207,23 +293,36 @@ public class mainTwiter {
                 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
                 List<String> detectNames = new ArrayList<>();
                 // Lấy danh sách kết quả tweet
-                for (int i = 1; i < 10; i++) {
+                for (int i = 1; i <= 1; i++) {
                     Thread.sleep(6000);
-                    tweets = driver.findElements(By.xpath("//article"));
+                    tweets = driver.findElements(By.xpath("//section/div/div/div/div/div/article/div/div/div[2]"));
                     for(int j = 0; j < tweets.size(); j++) {
-
-                        String detectName = tweets.get(j).findElement(By.xpath(".//div/div/div[2]/div[2]/div[1]/div[1]/div[1]/div/div/div[2]/div/div[1]")).getText();
-                        if (!detectNames.contains(detectName)) {
-                            detectNames.add(detectName);
-                        } else {
+                        try {
+                            String detectName = tweets.get(j).findElement(By.xpath(".//div[2]/div[1]/div[1]/div[1]/div/div/div[2]/div/div[1]")).getText();
+                            if (!detectNames.contains(detectName)) {
+                                detectNames.add(detectName);
+                            } else {
+                                continue;
+                            }
+                            browserTweet(driver, js, tweets.get(j));
+                        } catch (Exception e){
+                            System.out.println("Lỗi khi xử lý tweet: " + e.getMessage());
                             continue;
                         }
-                        browserTweet(driver, js, tweets.get(j));
                     }
-                    js.executeScript("window.scrollBy(0, " + 6000 + ");");
-                    System.out.println("Cuộn trang xuống");
-                    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//article")));
+                    int previousSize = tweets.size();
+                    int retries = 0;
+                    js.executeScript("window.scrollBy(0, 3000);");
+                    Thread.sleep(3000);
+                    js.executeScript("window.scrollBy(0, 3000);");
+                    Thread.sleep(3000);
+                    js.executeScript("window.scrollBy(0, 3000);");
+                    Thread.sleep(3000);
+                    js.executeScript("window.scrollBy(0, 3000);");
+                    Thread.sleep(3000);
+                    js.executeScript("window.scrollBy(0, -5000);");
+                    System.out.println("Đã cuộn xuống 6000px");
+                    Thread.sleep(3000);
 
                 }
             }
