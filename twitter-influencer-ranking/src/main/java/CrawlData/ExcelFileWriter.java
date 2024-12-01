@@ -13,7 +13,8 @@ public class ExcelFileWriter {
     private static Sheet sheet1 = workbook.createSheet("User");
     private static Sheet sheet2 = workbook.createSheet("User Follower");
     private static Sheet sheet3 = workbook.createSheet("User Following");
-    //private static Sheet sheet4 = workbook.createSheet("User Repost");
+    private static Sheet sheet4 = workbook.createSheet("User Repost");
+    private static Sheet sheet5 = workbook.createSheet("User Comment");
     private static int currentRow = 0;
 
     public ExcelFileWriter() {}
@@ -45,11 +46,17 @@ public class ExcelFileWriter {
             row3.createCell(i).setCellValue(page.listFollowing.get(i));
         }
 
-        /*Row row4 = sheet4.createRow(currentRow);
+        Row row4 = sheet4.createRow(currentRow);
 
         for (int i = 0; i < page.listUserNameRepost.size(); i++) {
             row4.createCell(i).setCellValue(page.listUserNameRepost.get(i));
-        } */
+        }
+
+        Row row5 = sheet5.createRow(currentRow);
+
+        for (int i = 0; i < page.listUserNameComment.size(); i++) {
+            row5.createCell(i).setCellValue(page.listUserNameComment.get(i));
+        }
 
         currentRow++;
 
