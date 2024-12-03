@@ -36,8 +36,8 @@ public class mainTwiter {
         //Khai báo các thuộc tính có trong tweet
         String name;
         String username;
-        String numoffollower;
-        String numoffollowing;
+        String numoffollower = "";
+        String numoffollowing = "";
         String linkpage;
         String linkhottweet;
         String numofviewinhottweet;
@@ -94,27 +94,26 @@ public class mainTwiter {
                 numoffollowing = numOfFollowing.getText();
                 WebElement numOfFollower = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[5]/div[2]/a/span[1]"));
                 numoffollower = numOfFollower.getText();
+            } finally {
+
+                Page page = new Page(name, username, numoffollower, numoffollowing, linkpage, linkhottweet, numofviewinhottweet, numofreactinhottweet, numofcommentinhottweet, numofrepostinhottweet);
+
+                driver.navigate().to(linkpage + "/following");
+                Thread.sleep(5000);
+                page.setlistFollowing(crawlUserNameFollowingFollowers(driver, js));
+                driver.navigate().to(linkpage + "/followers");
+                Thread.sleep(5000);
+                page.setlistFollower(crawlUserNameFollowingFollowers(driver, js));
+                driver.navigate().to(linkhottweet + "/retweets");
+                Thread.sleep(5000);
+                page.setlistUserNameRepost(crawlUserNameRepost(driver, js));
+                driver.navigate().to(linkhottweet);
+                Thread.sleep(5000);
+                page.setlistUserNameComment(crawlUserNameComment(driver, js));
+                driver.close();
+                driver.switchTo().window(tabs.get(0));
+                page.writeToExcel();
             }
-
-
-
-            Page page = new Page(name, username, numoffollower, numoffollowing, linkpage, linkhottweet, numofviewinhottweet, numofreactinhottweet, numofcommentinhottweet, numofrepostinhottweet);
-
-            driver.navigate().to(linkpage + "/following");
-            Thread.sleep(5000);
-            page.setlistFollowing(crawlUserNameFollowingFollowers(driver, js));
-            driver.navigate().to(linkpage + "/followers");
-            Thread.sleep(5000);
-            page.setlistFollower(crawlUserNameFollowingFollowers(driver, js));
-            driver.navigate().to(linkhottweet + "/retweets");
-            Thread.sleep(5000);
-            page.setlistUserNameRepost(crawlUserNameRepost(driver, js));
-            driver.navigate().to(linkhottweet);
-            Thread.sleep(5000);
-            page.setlistUserNameComment(crawlUserNameComment(driver, js));
-            driver.close();
-            driver.switchTo().window(tabs.get(0));
-            page.writeToExcel();
         } catch (Exception e) {
             System.out.println("Có lỗi xảy ra khi lấy thông tin từ một tweet: " + e.getMessage());
         } finally {
@@ -293,7 +292,7 @@ public class mainTwiter {
                 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
                 List<String> detectNames = new ArrayList<>();
                 // Lấy danh sách kết quả tweet
-                for (int i = 1; i <= 1; i++) {
+                for (int i = 1; i <= 7; i++) {
                     Thread.sleep(6000);
                     tweets = driver.findElements(By.xpath("//section/div/div/div/div/div/article/div/div/div[2]"));
                     for(int j = 0; j < tweets.size(); j++) {
