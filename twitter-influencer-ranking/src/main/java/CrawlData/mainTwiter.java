@@ -292,7 +292,7 @@ public class mainTwiter {
                 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
                 List<String> detectNames = new ArrayList<>();
                 // Lấy danh sách kết quả tweet
-                for (int i = 1; i <= 7; i++) {
+                for (int i = 1; i <= 2; i++) {
                     Thread.sleep(6000);
                     tweets = driver.findElements(By.xpath("//section/div/div/div/div/div/article/div/div/div[2]"));
                     for(int j = 0; j < tweets.size(); j++) {
