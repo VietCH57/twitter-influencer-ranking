@@ -24,6 +24,7 @@ public class mainTwiter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(link.size());
         return link;
     }
 
@@ -98,13 +99,13 @@ public class mainTwiter {
 
                 Page page = new Page(name, username, numoffollower, numoffollowing, linkpage, linkhottweet, numofviewinhottweet, numofreactinhottweet, numofcommentinhottweet, numofrepostinhottweet);
 
-                driver.navigate().to(linkpage + "/following");
+                searchLink(linkpage + "/following", driver);
                 Thread.sleep(5000);
                 page.setlistFollowing(crawlUserNameFollowingFollowers(driver, js));
-                driver.navigate().to(linkpage + "/followers");
+                searchLink(linkpage + "/followers", driver);
                 Thread.sleep(5000);
                 page.setlistFollower(crawlUserNameFollowingFollowers(driver, js));
-                driver.navigate().to(linkhottweet + "/retweets");
+                searchLink(linkhottweet + "/retweets", driver);
                 Thread.sleep(5000);
                 page.setlistUserNameRepost(crawlUserNameRepost(driver, js));
                 driver.navigate().to(linkhottweet);
