@@ -67,15 +67,27 @@ public class mainTwiter {
             // Lấy số view
             WebElement numOfViewInHotTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[4]/div/div/div[4]/a/div/div[2]"));
             numofviewinhottweet = numOfViewInHotTweet.getText();
+            if (numofviewinhottweet.equals("")){
+                numofviewinhottweet = "0";
+            }
             // Lấy số react
             WebElement numOfReactInHotTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[4]/div/div/div[3]/button/div/div[2]"));
             numofreactinhottweet = numOfReactInHotTweet.getText();
+            if (numofreactinhottweet.equals("")){
+                numofreactinhottweet = "0";
+            }
             //Lấy số cmt
             WebElement numOfCommentInHotTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[4]/div/div/div[1]/button/div/div[2]"));
             numofcommentinhottweet = numOfCommentInHotTweet.getText();
+            if (numofcommentinhottweet.equals("")){
+                numofcommentinhottweet = "0";
+            }
             // Lấy số repost
             WebElement numOfRepostInHotTweet = xPathTweet.findElement(By.xpath(".//div[2]/div[4]/div/div/div[2]/button/div/div[2]"));
             numofrepostinhottweet = numOfRepostInHotTweet.getText();
+            if (numofrepostinhottweet.equals("")){
+                numofrepostinhottweet = "0";
+            }
             System.out.println(linkpage);
             System.out.println(linkhottweet);
 
@@ -90,11 +102,23 @@ public class mainTwiter {
                 numoffollowing = numOfFollowing.getText();
                 WebElement numOfFollower = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[6]/div[2]/a/span[1]"));
                 numoffollower = numOfFollower.getText();
+                if (numoffollower.equals("")){
+                    numoffollower = "0";
+                }
+                if (numoffollowing.equals("")){
+                    numoffollowing = "0";
+                }
             } catch (Exception e) {
                 WebElement numOfFollowing = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[5]/div[1]/a/span[1]"));
                 numoffollowing = numOfFollowing.getText();
                 WebElement numOfFollower = driver.findElement(By.xpath("/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[5]/div[2]/a/span[1]"));
                 numoffollower = numOfFollower.getText();
+                if (numoffollower.equals("")){
+                    numoffollower = "0";
+                }
+                if (numoffollowing.equals("")){
+                    numoffollowing = "0";
+                }
             } finally {
 
                 Page page = new Page(name, username, numoffollower, numoffollowing, linkpage, linkhottweet, numofviewinhottweet, numofreactinhottweet, numofcommentinhottweet, numofrepostinhottweet);
@@ -163,7 +187,8 @@ public class mainTwiter {
     public static List<String> crawlUserNameRepost (WebDriver driver, JavascriptExecutor js) {
         // Tập hợp để lưu trữ các userretweet đã tìm thấy (để tránh trùng lặp)
         List<String> userretweetdetects  = new ArrayList<>();
-
+        int lastCount = 0;
+        int currentCount = 0;
         try {
                 // Tìm các phần tử user
                 for (int i = 1; i <=5 ; i++) {
@@ -179,6 +204,12 @@ public class mainTwiter {
                             System.out.println("Có lỗi khi lấy dữ liệu từ 1 repost" + e.getMessage());
                             continue;
                         }
+                    }
+                    currentCount = userretweetdetects.size();
+                    if (currentCount == lastCount) {
+                        break;
+                    } else {
+                        lastCount = currentCount;
                     }
                     js.executeScript("window.scrollBy(0, 2000);");
                     Thread.sleep(3000);
@@ -202,6 +233,8 @@ public class mainTwiter {
 
     public static List<String> crawlUserNameComment (WebDriver driver, JavascriptExecutor js) {
         List<String> usercommentdetects = new ArrayList<>();
+        int lastCount = 0;
+        int currentCount = 0;
         // Tìm các phần tử user
         try {
             for (int i = 1; i <= 6; i++) {
@@ -217,6 +250,12 @@ public class mainTwiter {
                         System.out.println("Có lỗi khi lấy dữ liệu từ 1 comment" + e.getMessage());
                         continue;
                     }
+                }
+                currentCount = usercommentdetects.size();
+                if (currentCount == lastCount) {
+                    break;
+                } else {
+                    lastCount = currentCount;
                 }
                 js.executeScript("window.scrollBy(0, 2500);");
                 Thread.sleep(3000);
@@ -288,12 +327,12 @@ public class mainTwiter {
             // Tìm kiếm từ khóa liên quan đến blockchain
             for (String link : links) {
                 searchLink(link, driver);
-
+                try{
                 // Đợi kết quả hiển thị
                 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
                 List<String> detectNames = new ArrayList<>();
                 // Lấy danh sách kết quả tweet
-                for (int i = 1; i <= 2; i++) {
+                for (int i = 1; i <= 5; i++) {
                     Thread.sleep(6000);
                     tweets = driver.findElements(By.xpath("//section/div/div/div/div/div/article/div/div/div[2]"));
                     for(int j = 0; j < tweets.size(); j++) {
@@ -310,31 +349,36 @@ public class mainTwiter {
                             continue;
                         }
                     }
-                    int previousSize = tweets.size();
-                    int retries = 0;
+                    try {
+                        //Ghi file ra
+                        ExcelFileWriter.saveToFile();
+                    } catch (Exception e) {
+                        System.out.println("Có lỗi xảy ra khi ghi file " + e.getMessage());
+                    }
                     js.executeScript("window.scrollBy(0, 3000);");
-                    Thread.sleep(3000);
+                    Thread.sleep(2000);
                     js.executeScript("window.scrollBy(0, 3000);");
-                    Thread.sleep(3000);
+                    Thread.sleep(2000);
                     js.executeScript("window.scrollBy(0, 3000);");
                     Thread.sleep(3000);
                     js.executeScript("window.scrollBy(0, 3000);");
                     Thread.sleep(3000);
                     js.executeScript("window.scrollBy(0, -5000);");
                     System.out.println("Đã cuộn xuống 6000px");
-                    Thread.sleep(3000);
-
+                    Thread.sleep(1000);
                 }
-            }
-            try {
-                //Ghi file ra
-                ExcelFileWriter.saveToFile();
-            } catch (Exception e) {
-                System.out.println("Có lỗi xảy ra khi ghi file " + e.getMessage());
+                } catch (TimeoutException e) {
+                    System.out.println("Timeout while loading page: " + e.getMessage());
+                    //Ghi file ra
+                    ExcelFileWriter.saveToFile();
+                    continue;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            //Đóng workbook
+            ExcelFileWriter.closeWorkbook();
             //Đóng trình duyệt
             driver.quit();
         }
