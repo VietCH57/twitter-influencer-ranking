@@ -69,12 +69,14 @@ public class ExcelFileWriter {
             System.out.println("File written to: " + fileName);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                workbook.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        }
+    }
+
+    public static void closeWorkbook(){
+        try {
+            workbook.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
