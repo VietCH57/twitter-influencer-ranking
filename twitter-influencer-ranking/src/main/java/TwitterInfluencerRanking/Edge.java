@@ -6,6 +6,7 @@ public class Edge {
     private EdgeType type;
     private double weight;
 
+    //constructor
     public Edge(Node source, Node target, EdgeType type, double weight) {
         this.source = source;
         this.target = target;
@@ -13,18 +14,16 @@ public class Edge {
         this.weight = weight;
     }
 
+    //getter
     public Node getSource() {
         return source;
     }
-
     public Node getTarget() {
         return target;
     }
-
     public EdgeType getType() {
         return type;
     }
-
     public double getWeight() {
         return weight;
     }

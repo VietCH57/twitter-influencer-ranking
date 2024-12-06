@@ -8,12 +8,12 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
     private static final String INPUT_FILE = "transformed_data.xlsx";
     private static final String OUTPUT_FILE = "ranking_output.xlsx";
-    private static final int MIN_FOLLOWER_COUNT = KoL.MIN_FOLLOWER_COUNT;
 
     public static void main(String[] args) {
         // Print program start information
@@ -63,7 +63,7 @@ public class Main {
         System.out.println("End Time (UTC): " + utcTime.format(formatter));
     }
 
-    private static Graph loadGraphFromExcel(File inputFile) {
+    public static Graph loadGraphFromExcel(File inputFile) {
         Graph graph = new Graph();
 
         try (FileInputStream fis = new FileInputStream(inputFile);
@@ -165,7 +165,7 @@ public class Main {
 
             for (Map.Entry<Node, Double> entry : sortedScores) {
                 User user = (User) entry.getKey();
-                if (user.getFollowerCount() >= MIN_FOLLOWER_COUNT) {
+                if (user.getFollowerCount() >= KoL.getMinFollowerCount()) {
                     Row row = sheet.createRow(rowNum++);
                     row.createCell(0).setCellValue(rank++);  // Increment rank only when creating a row
                     row.createCell(1).setCellValue(user.getId());
@@ -191,5 +191,17 @@ public class Main {
         } catch (IOException e) {
             System.out.println("Error creating output file: " + e.getMessage());
         }
+    }
+
+    public static List<Map.Entry<Node, Double>> sortAndFilterPageRankScores(Map<Node, Double> pageRankScores) {
+        List<Map.Entry<Node, Double>> sortedScores = new ArrayList<>(pageRankScores.entrySet());
+        sortedScores.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
+
+        return sortedScores.stream()
+                .filter(entry -> {
+                    User user = (User) entry.getKey();
+                    return user.getFollowerCount() >= KoL.getMinFollowerCount();
+                })
+                .collect(Collectors.toList());
     }
 }

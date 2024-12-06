@@ -2,7 +2,6 @@ package TwitterInfluencerRanking;
 
 import java.util.*;
 
-
 public class Graph {
     private Map<Node, List<Edge>> adjacencyList;
 

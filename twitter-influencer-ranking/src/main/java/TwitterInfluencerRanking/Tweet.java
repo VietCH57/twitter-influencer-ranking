@@ -7,6 +7,7 @@ public class Tweet extends Node {
     private int retweetCount;
     private String linkToTweet;
 
+    //constructor
     public Tweet() {
         super();
         this.userId = 0;
@@ -25,22 +26,19 @@ public class Tweet extends Node {
         this.linkToTweet = linkToTweet;
     }
 
+    //getter
     public int getUserId() {
         return userId;
     }
-
     public int getLikeCount() {
         return likeCount;
     }
-
     public int getReplyCount() {
         return replyCount;
     }
-
     public int getRetweetCount() {
         return retweetCount;
     }
-
     public String getLinkToTweet() {
         return linkToTweet;
     }

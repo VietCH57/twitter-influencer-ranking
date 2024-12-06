@@ -6,6 +6,7 @@ public class User extends Node {
     private int followingCount;
     private String linkToProfile;
 
+    //constructor
     public User() {
         super();
         this.username = null;
@@ -22,18 +23,16 @@ public class User extends Node {
         this.linkToProfile = linkToProfile;
     }
 
+    //getter
     public String getUsername() {
         return username;
     }
-
     public int getFollowerCount() {
         return followerCount;
     }
-
     public int getFollowingCount() {
         return followingCount;
     }
-
     public String getLinkToProfile() {
         return linkToProfile;
     }

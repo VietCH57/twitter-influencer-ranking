@@ -1,7 +1,7 @@
 package TwitterInfluencerRanking;
 
 public class KoL extends User {
-    public static final int MIN_FOLLOWER_COUNT = 300;
+    private static final int MIN_FOLLOWER_COUNT = 300;
 
     public KoL() {
         super();
@@ -13,4 +13,6 @@ public class KoL extends User {
             throw new IllegalArgumentException("Follower count too low for KOL classification");
         }
     }
+
+    public static int getMinFollowerCount(){ return MIN_FOLLOWER_COUNT; }
 }
