@@ -11,8 +11,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class mainTwiter {
-    public static void main(String[] args) {
+public class MainCrawl {
+    public MainCrawl(){};
+    public void ControlMainCrawl () {
         //Duong dan toi GeckoDriver
         System.setProperty("webdriver.gecko.driver", "D:\\Project OOP\\Gecko\\geckodriver.exe");
         //Cau hinh cho Firefox

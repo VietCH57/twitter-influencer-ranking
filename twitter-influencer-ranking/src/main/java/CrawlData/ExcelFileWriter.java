@@ -44,34 +44,27 @@ public class ExcelFileWriter {
 
         Row row2 = sheet2.createRow(rowIndex);
         List<String> usersFollower = page.getList("Follower");
-        for (String user : usersFollower) {
-            int i = 0;
-            row2.createCell(i).setCellValue(user);
-            i++;
+
+        for (int i = 0; i < usersFollower.size(); i++) {
+            row2.createCell(i).setCellValue(usersFollower.get(i));
         }
 
         Row row3 = sheet3.createRow(rowIndex);
         List<String> usersFollowing = page.getList("Following");
-        for (String user : usersFollowing) {
-            int i = 0;
-            row3.createCell(i).setCellValue(user);
-            i++;
+        for (int i = 0; i < usersFollowing.size(); i++) {
+            row3.createCell(i).setCellValue(usersFollowing.get(i));
         }
 
         Row row4 = sheet4.createRow(rowIndex);
         List<String> usersRepost = page.getList("Repost");
-        for (String user : usersRepost) {
-            int i = 0;
-            row4.createCell(i).setCellValue(user);
-            i++;
+        for (int i = 0; i < usersRepost.size(); i++) {
+            row4.createCell(i).setCellValue(usersRepost.get(i));
         }
 
         Row row5 = sheet5.createRow(rowIndex);
         List<String> usersComment = page.getList("Comment");
-        for (String user : usersComment) {
-            int i = 0;
-            row5.createCell(i).setCellValue(user);
-            i++;
+        for (int i = 0; i < usersComment.size(); i++) {
+            row5.createCell(i).setCellValue(usersComment.get(i));
         }
     }
 

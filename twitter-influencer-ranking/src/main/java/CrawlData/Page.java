@@ -93,6 +93,13 @@ public class Page {
         return numOfRepostInHotTweet;
     }
 
+    public void FixComment (){
+        if(!userLists.get("Comment").isEmpty()){
+            userLists.get("Comment").removeFirst();
+            System.out.println("Đã xóa phần tử đầu tiên");
+        }
+    }
+
     public int getId() {
         return id;
     }
