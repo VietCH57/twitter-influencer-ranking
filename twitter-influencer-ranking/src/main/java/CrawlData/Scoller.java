@@ -26,7 +26,6 @@ public class Scoller {
             js.executeScript("window.scrollBy(0, " + i/2 + ");");
             Thread.sleep(3000);
             js.executeScript("window.scrollBy(0, " + (-i) + ");");
-            System.out.println("Da cuon xuong " + i + "px");
             Thread.sleep(1000);
         } catch (Exception e) {
             System.out.println("Co loi khi cuon xuong: " + e.getMessage());

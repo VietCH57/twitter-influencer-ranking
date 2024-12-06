@@ -85,6 +85,9 @@ public class XScraper {
             tm.switchTab(driver);
             String numoffollowing = scraper1(numOfFollowingIndex1, numOfFollowingIndex2, driver);
             String numoffollower = scraper1(numOfFollowerIndex1, numOfFollowerIndex2, driver);
+
+            System.out.println(linkpage);
+
             //Khoi tao doi tuong cua lop Page de luu du lieu
             Page page = new Page(name, username, numoffollower, numoffollowing, linkpage, linkhottweet, numofviewinhottweet, numofreactinhottweet, numofcommentinhottweet, numofrepostinhottweet);
 
@@ -214,7 +217,7 @@ public class XScraper {
         } catch (Exception e) {
             System.out.println("Loi khi lay danh sach Repost: " + e.getMessage());
         }
-        System.out.println(userretweetdetects.size());
+        System.out.println("So userrepost lay duoc la: " + userretweetdetects.size());
     }
 
     public void crawlUserNameComment (WebDriver driver, Page page, String listType){
@@ -248,12 +251,14 @@ public class XScraper {
                 }
                 sc1.scoller(4000, driver);
             }
+            page.FixComment();
+
         } catch (TimeoutException e) {
             System.out.println("Loi bi treo khi lay danh sach Comment: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Loi khi lay danh sach Comment: " + e.getMessage());
         }
-        System.out.println(usercommentdetects.size());
+        System.out.println("So usercomment lay duoc la: " + (usercommentdetects.size() - 1));
     }
 
     public void crawlUserNameFollowingFollowers(WebDriver driver, Page page, String listType){
