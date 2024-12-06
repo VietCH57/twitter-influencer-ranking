@@ -1,10 +1,9 @@
 package CrawlData;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Page {
-    private String Name;
+    private String name;
     private String userName;
     private String numOfFollower;
     private String numOfFollowing;
@@ -14,34 +13,24 @@ public class Page {
     private String numOfReactInHotTweet;
     private String numOfCommentInHotTweet;
     private String numOfRepostInHotTweet;
-    List<String> listFollower = new ArrayList<String>();
-    List<String> listFollowing = new ArrayList<>();
-    List<String> listUserNameRepost = new ArrayList<>();
-    List<String> listUserNameComment = new ArrayList<>();
+    private Map<String, List<String>> userLists;// Follower, Following, Repost, Comment
     private static int i = 0;
     private int id;
-    ExcelFileWriter excelFileWriter = new ExcelFileWriter();
 
-    public Page(){
-        this.Name = null;
-        this.userName = null;
-        this.numOfFollower = null;
-        this.numOfFollowing = null;
-        this.linkPage = null;
-        this.linkHotTweet = null;
-        this.numOfViewInHotTweet = null;
-        this.numOfReactInHotTweet = null;
-        this.numOfCommentInHotTweet = null;
-        this.numOfRepostInHotTweet = null;
-        this.listFollower = null;
-        this.listFollowing = null;
-        this.listUserNameRepost = null;
-        this.listUserNameComment = null;
-        id = i;
+    public Page() {
+        this.userLists = new HashMap<>();
+        this.userLists.put("Follower", new ArrayList<>());
+        this.userLists.put("Following", new ArrayList<>());
+        this.userLists.put("Repost", new ArrayList<>());
+        this.userLists.put("Comment", new ArrayList<>());
     }
 
-    public Page(String Name, String userName, String numOfFollower, String numOfFollowing, String linkPage, String linkHotTweet, String numOfViewInHotTweet, String numOfReactInHotTweet, String numOfCommentInHotTweet, String numOfRepostInHotTweet){
-        this.Name = Name;
+
+
+    // Constructor voi thong tin co ban
+    public Page(String name, String userName, String numOfFollower, String numOfFollowing, String linkPage, String linkHotTweet, String numOfViewInHotTweet, String numOfReactInHotTweet, String numOfCommentInHotTweet, String numOfRepostInHotTweet) {
+        this();
+        this.name = name;
         this.userName = userName;
         this.numOfFollower = numOfFollower;
         this.numOfFollowing = numOfFollowing;
@@ -54,65 +43,57 @@ public class Page {
         id = i;
         i++;
     }
-    public void setlistFollower(List<String> userNameFollower){
-        listFollower.addAll(userNameFollower);
+
+    // Them vao danh sach
+    public void addUserToList(String listType, String userName) {
+        userLists.computeIfAbsent(listType, k -> new ArrayList<>()).add(userName);
     }
-    public void setlistFollowing(List<String> userNameFollowing){
-        listFollowing.addAll(userNameFollowing);
-    }
-    public void setlistUserNameRepost(List<String> userNameRepost){
-        listUserNameRepost.addAll(userNameRepost);
+    //Lay ra khoi danh sach
+    public List<String> getList(String listType) {
+        return userLists.getOrDefault(listType, new ArrayList<>());
     }
 
-    public void setlistUserNameComment(List<String> userNameComment){
-        listUserNameComment.addAll(userNameComment);
+    public String getName() {
+        return name;
     }
 
-    public int getID(){
-        return id;
-    }
-
-    public String getName(){
-        return Name;
-    }
-
-    public String getUserName(){
+    public String getUserName() {
         return userName;
     }
 
-    public String getNumOfFollower(){
+    public String getNumOfFollower() {
         return numOfFollower;
     }
 
-    public String getNumOfFollowing(){
+    public String getNumOfFollowing() {
         return numOfFollowing;
     }
 
-    public String getLinkPage(){
+    public String getLinkPage() {
         return linkPage;
     }
 
-    public String getLinkHotTweet(){
+    public String getLinkHotTweet() {
         return linkHotTweet;
     }
 
-    public String getNumOfViewInHotTweet(){
+    public String getNumOfViewInHotTweet() {
         return numOfViewInHotTweet;
     }
 
-    public String getNumOfReactInHotTweet(){
+    public String getNumOfReactInHotTweet() {
         return numOfReactInHotTweet;
     }
 
-    public String getNumOfCommentInHotTweet(){
+    public String getNumOfCommentInHotTweet() {
         return numOfCommentInHotTweet;
     }
 
-    public String getNumOfRepostInHotTweet(){
+    public String getNumOfRepostInHotTweet() {
         return numOfRepostInHotTweet;
     }
 
-    public void writeToExcel(){
-        excelFileWriter.writeRowData(this);
+    public int getId() {
+        return id;
     }
 }
