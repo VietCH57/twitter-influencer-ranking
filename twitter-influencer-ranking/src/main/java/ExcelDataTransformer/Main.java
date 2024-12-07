@@ -1,17 +1,20 @@
 package ExcelDataTransformer;
 
+import ExcelDataTransformer.core.SheetTransformer;
+import ExcelDataTransformer.transformers.InteractionSheetTransformer;
+import ExcelDataTransformer.transformers.UserSheetTransformer;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.*;
 
-public class ExcelDataTransformer {
+public class Main {
     private static final String INPUT_FILE = "input.xlsx";
     private static final String OUTPUT_FILE = "transformed_data.xlsx";
     // Sử dụng LinkedHashMap để duy trì thứ tự của các sheet
     private final LinkedHashMap<String, SheetTransformer> transformers;
 
-    public ExcelDataTransformer() {
+    public Main() {
         transformers = new LinkedHashMap<>();
         // Thêm các transformer theo đúng thứ tự sheet
         transformers.put("User", new UserSheetTransformer());
@@ -76,6 +79,6 @@ public class ExcelDataTransformer {
     }
 
     public static void main(String[] args) {
-        new ExcelDataTransformer().transformData();
+        new Main().transformData();
     }
 }

@@ -1,4 +1,4 @@
-package ExcelDataTransformer;
+package ExcelDataTransformer.core;
 
 import org.apache.poi.ss.usermodel.*;
 

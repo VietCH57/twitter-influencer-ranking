@@ -1,5 +1,7 @@
-package ExcelDataTransformer;
+package ExcelDataTransformer.transformers;
 
+import ExcelDataTransformer.core.BaseTransformer;
+import ExcelDataTransformer.core.SheetTransformer;
 import org.apache.poi.ss.usermodel.*;
 
 public class UserSheetTransformer extends BaseTransformer implements SheetTransformer {

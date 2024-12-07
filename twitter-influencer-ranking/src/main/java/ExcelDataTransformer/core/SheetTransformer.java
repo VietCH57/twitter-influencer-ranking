@@ -1,7 +1,7 @@
-package ExcelDataTransformer;
+package ExcelDataTransformer.core;
 
 import org.apache.poi.ss.usermodel.*;
 
-interface SheetTransformer {
+public interface SheetTransformer {
     void transform(Sheet inputSheet, Workbook outputWorkbook);
 }
