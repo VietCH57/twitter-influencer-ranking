@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class Main {
+public class PagerankExecuter {
 
     private static final String INPUT_FILE = "cleaned_data.xlsx";
     private static final String OUTPUT_FILE = "ranking_output.xlsx";

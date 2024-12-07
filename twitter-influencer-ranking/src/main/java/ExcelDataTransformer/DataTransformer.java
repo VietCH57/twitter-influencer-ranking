@@ -8,13 +8,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.*;
 
-public class Main {
+public class DataTransformer {
     private static final String INPUT_FILE = "input.xlsx";
     private static final String OUTPUT_FILE = "transformed_data.xlsx";
     // Sử dụng LinkedHashMap để duy trì thứ tự của các sheet
     private final LinkedHashMap<String, SheetTransformer> transformers;
 
-    public Main() {
+    public DataTransformer() {
         transformers = new LinkedHashMap<>();
         // Thêm các transformer theo đúng thứ tự sheet
         transformers.put("User", new UserSheetTransformer());
@@ -79,6 +79,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        new Main().transformData();
+        new DataTransformer().transformData();
     }
 }

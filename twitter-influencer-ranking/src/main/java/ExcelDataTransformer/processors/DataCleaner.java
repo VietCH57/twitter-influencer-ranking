@@ -5,29 +5,33 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import ExcelDataTransformer.util.ExcelUtils;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataCleaner {
     private static final String INPUT_FILE = "transformed_data.xlsx";
     private static final String OUTPUT_FILE = "cleaned_data.xlsx";
 
     public void cleanData() {
+        System.out.println("Starting data cleaning process...");
         try (FileInputStream fis = new FileInputStream(INPUT_FILE);
              Workbook inputWorkbook = new XSSFWorkbook(fis)) {
 
             Workbook outputWorkbook = new XSSFWorkbook();
 
-            // Clean User sheet first (remove duplicate users)
+            // First, process User sheet to find duplicates and their ID mappings
             Sheet userSheet = inputWorkbook.getSheet("User");
-            if (userSheet != null) {
-                cleanUserSheet(userSheet, outputWorkbook);
-            }
+            Map<String, List<UserEntry>> duplicateUsers = findDuplicateUsers(userSheet);
+            Map<String, String> idMappings = createIdMappings(duplicateUsers);
 
-            // Clean and copy interaction sheets
+            // Clean User sheet (remove duplicates)
+            Set<String> validUserIds = cleanUserSheet(userSheet, outputWorkbook, duplicateUsers);
+
+            // Clean and copy interaction sheets with ID updates and invalid target removal
             String[] sheetNames = {"User Follower", "User Following", "User Repost", "User Comment"};
             for (String sheetName : sheetNames) {
-                Sheet inputSheet = inputSheet = inputWorkbook.getSheet(sheetName);
+                Sheet inputSheet = inputWorkbook.getSheet(sheetName);
                 if (inputSheet != null) {
-                    cleanInteractionSheet(inputSheet, outputWorkbook);
+                    cleanInteractionSheet(inputSheet, outputWorkbook, idMappings, validUserIds);
                 }
             }
 
@@ -43,7 +47,58 @@ public class DataCleaner {
         }
     }
 
-    private void cleanUserSheet(Sheet inputSheet, Workbook outputWorkbook) {
+    private static class UserEntry {
+        final int rowIndex;
+        final String userId;
+        final String username;
+
+        UserEntry(int rowIndex, String userId, String username) {
+            this.rowIndex = rowIndex;
+            this.userId = userId;
+            this.username = username;
+        }
+    }
+
+    private Map<String, List<UserEntry>> findDuplicateUsers(Sheet userSheet) {
+        Map<String, List<UserEntry>> userMap = new HashMap<>();
+
+        // Skip header row
+        for (int i = 1; i <= userSheet.getLastRowNum(); i++) {
+            Row row = userSheet.getRow(i);
+            if (row != null) {
+                String userId = getValueAsString(row.getCell(0));
+                String username = getValueAsString(row.getCell(2));
+
+                if (userId != null && username != null) {
+                    userMap.computeIfAbsent(username, k -> new ArrayList<>())
+                            .add(new UserEntry(i, userId, username));
+                }
+            }
+        }
+
+        return userMap.entrySet().stream()
+                .filter(e -> e.getValue().size() > 1)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Map<String, String> createIdMappings(Map<String, List<UserEntry>> duplicateUsers) {
+        Map<String, String> idMappings = new HashMap<>();
+
+        for (List<UserEntry> entries : duplicateUsers.values()) {
+            String primaryId = entries.get(0).userId; // Keep the first ID as primary
+            for (int i = 1; i < entries.size(); i++) {
+                idMappings.put(entries.get(i).userId, primaryId);
+            }
+            System.out.println("Mapping IDs for user @" + entries.get(0).username +
+                    ": " + entries.stream().map(e -> e.userId).collect(Collectors.joining(", ")) +
+                    " -> " + primaryId);
+        }
+
+        return idMappings;
+    }
+
+    private Set<String> cleanUserSheet(Sheet inputSheet, Workbook outputWorkbook,
+                                       Map<String, List<UserEntry>> duplicateUsers) {
         Sheet outputSheet = outputWorkbook.createSheet("User");
         System.out.println("Cleaning User sheet...");
 
@@ -54,19 +109,21 @@ public class DataCleaner {
             ExcelUtils.copyRow(headerRow, outputHeaderRow);
         }
 
-        // Use a Set to track unique users by their username (column 2)
+        // Use a Map to track unique users by their username
         Map<String, Row> uniqueUsers = new LinkedHashMap<>();
+        Set<String> validUserIds = new HashSet<>();
 
         // Process all rows except header
         for (int i = 1; i <= inputSheet.getLastRowNum(); i++) {
             Row inputRow = inputSheet.getRow(i);
             if (inputRow != null) {
-                Cell usernameCell = inputRow.getCell(2); // Username is in column C
-                if (usernameCell != null) {
-                    String username = usernameCell.getStringCellValue();
+                String username = getValueAsString(inputRow.getCell(2));
+                String userId = getValueAsString(inputRow.getCell(0));
+                if (username != null && userId != null) {
                     // Keep only the first occurrence of each user
                     if (!uniqueUsers.containsKey(username)) {
                         uniqueUsers.put(username, inputRow);
+                        validUserIds.add(userId);
                     }
                 }
             }
@@ -81,9 +138,12 @@ public class DataCleaner {
 
         ExcelUtils.autoSizeColumns(outputSheet);
         System.out.println("Removed " + (inputSheet.getLastRowNum() - uniqueUsers.size()) + " duplicate users");
+
+        return validUserIds;
     }
 
-    private void cleanInteractionSheet(Sheet inputSheet, Workbook outputWorkbook) {
+    private void cleanInteractionSheet(Sheet inputSheet, Workbook outputWorkbook,
+                                       Map<String, String> idMappings, Set<String> validUserIds) {
         Sheet outputSheet = outputWorkbook.createSheet(inputSheet.getSheetName());
         System.out.println("Cleaning " + inputSheet.getSheetName() + "...");
 
@@ -94,19 +154,33 @@ public class DataCleaner {
             ExcelUtils.copyRow(headerRow, outputHeaderRow);
         }
 
-        // Map to store unique interactions for each source user
-        // Key: sourceUserId, Value: Map of targetUserId to Row
         Map<String, Set<String>> uniqueInteractions = new HashMap<>();
         List<Row> cleanedRows = new ArrayList<>();
+        int invalidTargetCount = 0;
+        int updatedIdCount = 0;
 
         // Process all rows except header
         for (int i = 1; i <= inputSheet.getLastRowNum(); i++) {
             Row inputRow = inputSheet.getRow(i);
             if (inputRow != null) {
-                String sourceUserId = getValueAsString(inputRow.getCell(1)); // Source User ID
-                String targetUserId = getValueAsString(inputRow.getCell(3)); // Target User ID
+                String sourceUserId = getValueAsString(inputRow.getCell(1));
+                String targetUserId = getValueAsString(inputRow.getCell(3));
 
-                if (sourceUserId != null && targetUserId != null) {
+                // Update IDs if they're in the mapping
+                if (sourceUserId != null && idMappings.containsKey(sourceUserId)) {
+                    sourceUserId = idMappings.get(sourceUserId);
+                    inputRow.getCell(1).setCellValue(Double.parseDouble(sourceUserId));
+                    updatedIdCount++;
+                }
+                if (targetUserId != null && idMappings.containsKey(targetUserId)) {
+                    targetUserId = idMappings.get(targetUserId);
+                    inputRow.getCell(3).setCellValue(Double.parseDouble(targetUserId));
+                    updatedIdCount++;
+                }
+
+                // Check if target user exists in User sheet
+                if (sourceUserId != null && targetUserId != null &&
+                        validUserIds.contains(sourceUserId) && validUserIds.contains(targetUserId)) {
                     // Initialize set for this source user if not exists
                     uniqueInteractions.putIfAbsent(sourceUserId, new HashSet<>());
 
@@ -114,6 +188,8 @@ public class DataCleaner {
                     if (uniqueInteractions.get(sourceUserId).add(targetUserId)) {
                         cleanedRows.add(inputRow);
                     }
+                } else {
+                    invalidTargetCount++;
                 }
             }
         }
@@ -126,15 +202,18 @@ public class DataCleaner {
         }
 
         ExcelUtils.autoSizeColumns(outputSheet);
-        System.out.println("Removed " + (inputSheet.getLastRowNum() - cleanedRows.size()) +
-                " duplicate interactions in " + inputSheet.getSheetName());
+        System.out.println("In " + inputSheet.getSheetName() + ":");
+        System.out.println("- Updated " + updatedIdCount + " IDs");
+        System.out.println("- Removed " + invalidTargetCount + " rows with invalid users");
+        System.out.println("- Removed " + (inputSheet.getLastRowNum() - cleanedRows.size() - invalidTargetCount) +
+                " duplicate interactions");
     }
 
     private String getValueAsString(Cell cell) {
         if (cell == null) return null;
         switch (cell.getCellType()) {
             case STRING:
-                return cell.getStringCellValue();
+                return cell.getStringCellValue().trim();
             case NUMERIC:
                 return String.valueOf((long)cell.getNumericCellValue());
             default:

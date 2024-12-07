@@ -27,14 +27,12 @@ public class PageRank {
     }
 
     private double calculateUserImportance(User user) {
-        // Normalize each metric using log scale to handle large numbers
         double normalizedFollowers = Math.log1p(user.getFollowerCount());
         double normalizedViews = Math.log1p(user.getViews());
         double normalizedReacts = Math.log1p(user.getReacts());
         double normalizedComments = Math.log1p(user.getComments());
         double normalizedReposts = Math.log1p(user.getReposts());
 
-        // Combine metrics using weights
         return (normalizedFollowers * FOLLOWER_WEIGHT +
                 normalizedViews * VIEW_WEIGHT +
                 normalizedReacts * REACT_WEIGHT +
@@ -47,14 +45,12 @@ public class PageRank {
         int size = nodes.size();
         RealMatrix matrix = new Array2DRowRealMatrix(size, size);
 
-        // Create node to index mapping
         List<Node> nodeList = new ArrayList<>(nodes);
         Map<Node, Integer> nodeIndexMap = new HashMap<>();
         for (int i = 0; i < nodeList.size(); i++) {
             nodeIndexMap.put(nodeList.get(i), i);
         }
 
-        // Calculate weighted edges considering both edge type and user importance
         for (Node node : nodes) {
             if (!(node instanceof User)) continue;
             User sourceUser = (User) node;
@@ -64,14 +60,10 @@ public class PageRank {
             int fromIndex = nodeIndexMap.get(node);
             double sourceImportance = calculateUserImportance(sourceUser);
 
-            // Calculate total combined weight for normalization
-            double totalWeight = 0.0;
-            for (Edge edge : outgoingEdges) {
-                double edgeTypeWeight = edge.getWeight();
-                totalWeight += edgeTypeWeight * sourceImportance;
-            }
+            double totalWeight = outgoingEdges.stream()
+                    .mapToDouble(edge -> edge.getWeight() * sourceImportance)
+                    .sum();
 
-            // Add weighted edges to matrix
             for (Edge edge : outgoingEdges) {
                 int toIndex = nodeIndexMap.get(edge.getTarget());
                 double edgeTypeWeight = edge.getWeight();
@@ -80,12 +72,10 @@ public class PageRank {
             }
         }
 
-        // Initialize rank vector with personalized weights based on user metrics
         RealVector rankVector = new ArrayRealVector(size);
         RealVector teleportVector = new ArrayRealVector(size);
         double totalImportance = 0.0;
 
-        // Calculate initial ranks based on user importance
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
             if (node instanceof User) {
@@ -96,25 +86,21 @@ public class PageRank {
             }
         }
 
-        // Normalize initial vectors
         if (totalImportance > 0) {
             for (int i = 0; i < size; i++) {
                 rankVector.setEntry(i, rankVector.getEntry(i) / totalImportance);
                 teleportVector.setEntry(i, teleportVector.getEntry(i) / totalImportance);
             }
         } else {
-            // Fallback to uniform distribution if no importance scores
             rankVector = new ArrayRealVector(size, 1.0 / size);
             teleportVector = new ArrayRealVector(size, 1.0 / size);
         }
 
-        // Power iteration method with damping factor
         for (int i = 0; i < MAX_ITERATIONS; i++) {
             RealVector newRankVector = matrix.operate(rankVector)
                     .mapMultiply(DAMPING_FACTOR)
                     .add(teleportVector.mapMultiply(1 - DAMPING_FACTOR));
 
-            // Check for convergence
             if (newRankVector.subtract(rankVector).getNorm() < 1e-10) {
                 System.out.println("PageRank converged after " + (i + 1) + " iterations");
                 rankVector = newRankVector;
@@ -124,7 +110,6 @@ public class PageRank {
             rankVector = newRankVector;
         }
 
-        // Create result map
         Map<Node, Double> pageRankScores = new HashMap<>();
         for (int i = 0; i < nodeList.size(); i++) {
             pageRankScores.put(nodeList.get(i), rankVector.getEntry(i));
