@@ -1,11 +1,11 @@
 package GUI;
 
-import TwitterInfluencerRanking.graph.Graph;
-import TwitterInfluencerRanking.model.KoL;
-import TwitterInfluencerRanking.model.Node;
-import TwitterInfluencerRanking.model.User;
-import TwitterInfluencerRanking.rank.PageRank;
-import TwitterInfluencerRanking.Main;
+import TwitRank.graph.Graph;
+import TwitRank.graph.GraphLoader;
+import TwitRank.model.KoL;
+import TwitRank.model.Node;
+import TwitRank.model.User;
+import TwitRank.rank.PageRank;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -76,7 +76,8 @@ public class GUI extends Application {
         File selectedFile = fileChooser.showOpenDialog(stage);
         if (selectedFile != null) {
             new Thread(() -> {
-                graph = Main.loadGraphFromExcel(selectedFile);
+                GraphLoader graphLoader = new GraphLoader();
+                graph = graphLoader.loadGraphFromExcel(selectedFile);
                 Platform.runLater(() -> {
                     statusLabel.setText("Graph loaded: " + graph.getAllNodes().size() + " nodes");
                 });

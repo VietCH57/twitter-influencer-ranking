@@ -1,10 +1,10 @@
-package TwitterInfluencerRanking;
+package TwitRank;
 
-import TwitterInfluencerRanking.graph.Graph;
-import TwitterInfluencerRanking.graph.GraphLoader;
-import TwitterInfluencerRanking.model.Node;
-import TwitterInfluencerRanking.rank.PageRankCalculator;
-import TwitterInfluencerRanking.util.FileManager;
+import TwitRank.graph.Graph;
+import TwitRank.graph.GraphLoader;
+import TwitRank.model.Node;
+import TwitRank.rank.PageRankCalculator;
+import TwitRank.util.FileManager;
 
 import java.io.File;
 import java.time.ZoneOffset;

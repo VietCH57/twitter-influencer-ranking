@@ -1,8 +1,8 @@
-package TwitterInfluencerRanking.graph;
+package TwitRank.graph;
 
-import TwitterInfluencerRanking.model.EdgeType;
-import TwitterInfluencerRanking.model.Node;
-import TwitterInfluencerRanking.model.User;
+import TwitRank.model.EdgeType;
+import TwitRank.model.Node;
+import TwitRank.model.User;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 

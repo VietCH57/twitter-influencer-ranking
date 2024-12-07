@@ -1,4 +1,4 @@
-package TwitterInfluencerRanking.model;
+package TwitRank.model;
 
 public class Tweet extends Node {
     private int userId;

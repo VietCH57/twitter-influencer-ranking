@@ -1,4 +1,4 @@
-package TwitterInfluencerRanking.model;
+package TwitRank.model;
 
 public abstract class Node {
     protected int id;

@@ -1,4 +1,4 @@
-package TwitterInfluencerRanking.model;
+package TwitRank.model;
 
 public class KoL extends User {
     private static final int MIN_FOLLOWER_COUNT = 500000;

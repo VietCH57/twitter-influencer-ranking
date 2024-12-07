@@ -1,7 +1,7 @@
-package TwitterInfluencerRanking.rank;
+package TwitRank.rank;
 
-import TwitterInfluencerRanking.graph.Graph;
-import TwitterInfluencerRanking.model.Node;
+import TwitRank.graph.Graph;
+import TwitRank.model.Node;
 
 import java.util.*;
 

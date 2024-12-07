@@ -1,4 +1,4 @@
-package TwitterInfluencerRanking.model;
+package TwitRank.model;
 
 public enum EdgeType {
     FOLLOW,

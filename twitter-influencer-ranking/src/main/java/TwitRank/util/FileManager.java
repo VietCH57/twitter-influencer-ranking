@@ -1,8 +1,8 @@
-package TwitterInfluencerRanking.util;
+package TwitRank.util;
 
-import TwitterInfluencerRanking.model.KoL;
-import TwitterInfluencerRanking.model.Node;
-import TwitterInfluencerRanking.model.User;
+import TwitRank.model.KoL;
+import TwitRank.model.Node;
+import TwitRank.model.User;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 

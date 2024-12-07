@@ -1,8 +1,8 @@
-package TwitterInfluencerRanking.graph;
+package TwitRank.graph;
 
-import TwitterInfluencerRanking.model.Edge;
-import TwitterInfluencerRanking.model.EdgeType;
-import TwitterInfluencerRanking.model.Node;
+import TwitRank.model.Edge;
+import TwitRank.model.EdgeType;
+import TwitRank.model.Node;
 
 import java.util.*;
 
