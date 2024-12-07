@@ -24,9 +24,9 @@ public class DataTransformer {
         transformers.put("User Comment", new InteractionSheetTransformer("User Comment"));
     }
 
-    public void transformData() {
+    public void transformData(String selectedFile) {
         System.out.println("Starting data transformation...");
-        File inputFile = new File(INPUT_FILE);
+        File inputFile = new File(selectedFile);
 
         if (!inputFile.exists()) {
             System.out.println("Error: Input file not found at: " + inputFile.getAbsolutePath());
@@ -79,6 +79,6 @@ public class DataTransformer {
     }
 
     public static void main(String[] args) {
-        new DataTransformer().transformData();
+        new DataTransformer().transformData(INPUT_FILE);
     }
 }
