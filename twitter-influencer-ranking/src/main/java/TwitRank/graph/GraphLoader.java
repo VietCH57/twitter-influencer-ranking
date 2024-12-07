@@ -14,39 +14,36 @@ public class GraphLoader {
 
     public Graph loadGraphFromExcel(File inputFile) {
         Graph graph = new Graph();
-        System.out.println("Looking for input file at: " + inputFile.getAbsolutePath());
+        System.out.println("Loading graph from: " + inputFile.getAbsolutePath());
 
         try (FileInputStream fis = new FileInputStream(inputFile);
              Workbook workbook = WorkbookFactory.create(fis)) {
 
-            loadUsers(workbook, graph);
-            loadInteractions(workbook.getSheet("User Follower"), graph, EdgeType.FOLLOW);
-            loadInteractions(workbook.getSheet("User Following"), graph, EdgeType.FOLLOW);
-            loadInteractions(workbook.getSheet("User Repost"), graph, EdgeType.RETWEET);
-            loadInteractions(workbook.getSheet("User Comment"), graph, EdgeType.REPLY);
+            loadUsers(workbook.getSheet("User"), graph);
+            loadEdges(workbook.getSheet("User Follower"), graph, EdgeType.FOLLOW);
+            loadEdges(workbook.getSheet("User Following"), graph, EdgeType.FOLLOW);
+            loadEdges(workbook.getSheet("User Repost"), graph, EdgeType.RETWEET);
+            loadEdges(workbook.getSheet("User Comment"), graph, EdgeType.REPLY);
 
-            System.out.println("Successfully loaded graph data. Computing PageRank scores...");
             return graph;
 
         } catch (Exception e) {
-            System.out.println("Error loading graph data: " + e.getMessage());
+            System.out.println("Error loading graph: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
 
-    private void loadUsers(Workbook workbook, Graph graph) {
-        Sheet userSheet = workbook.getSheet("User");
-        if (userSheet == null) {
+    private void loadUsers(Sheet sheet, Graph graph) {
+        if (sheet == null) {
             System.out.println("Error: 'User' sheet not found in input file");
             return;
         }
 
-        System.out.println("Loading users from Excel...");
-        Map<Integer, String> userDebugInfo = new HashMap<>();
+        System.out.println("Loading users...");
         int rowCount = 0;
 
-        for (Row row : userSheet) {
+        for (Row row : sheet) {
             if (row.getRowNum() == 0) continue; // Skip header row
 
             try {
@@ -59,14 +56,13 @@ public class GraphLoader {
             }
         }
 
-        System.out.println("Successfully loaded " + rowCount + " users");
-        System.out.println("Total unique user IDs found: " + rowCount);
+        System.out.println("Loaded " + rowCount + " users");
     }
 
-    private void loadInteractions(Sheet sheet, Graph graph, EdgeType edgeType) {
+    private void loadEdges(Sheet sheet, Graph graph, EdgeType edgeType) {
         if (sheet == null) return;
 
-        System.out.println("Loading " + edgeType + " relationships from sheet: " + sheet.getSheetName());
+        System.out.println("Loading " + edgeType + " relationships...");
         Set<Integer> missingUsers = new HashSet<>();
         int relationCount = 0;
         int skippedCount = 0;
@@ -101,7 +97,8 @@ public class GraphLoader {
                 }
 
                 double weight = calculateEdgeWeight(edgeType);
-                graph.addEdge(sourceNode, targetNode, edgeType, weight);
+                Edge edge = new Edge(sourceNode, sourceId, targetNode, targetId, edgeType, weight);
+                graph.addEdge(edge);
                 relationCount++;
 
             } catch (Exception e) {
@@ -109,11 +106,7 @@ public class GraphLoader {
             }
         }
 
-        System.out.println("Successfully loaded " + relationCount + " " + edgeType + " relationships");
-        System.out.println("Skipped " + skippedCount + " invalid rows");
-        if (!missingUsers.isEmpty()) {
-            System.out.println("Missing users in relationship sheet: " + missingUsers);
-        }
+        System.out.println("Loaded " + relationCount + " " + edgeType + " relationships");
     }
 
     private User createUserFromRow(Row row) {
@@ -183,22 +176,15 @@ public class GraphLoader {
     }
 
     private Node findNodeById(Graph graph, int id) {
-        return graph.getAllNodes().stream()
-                .filter(node -> node instanceof User && ((User) node).getId() == id)
-                .findFirst()
-                .orElse(null);
+        return graph.getNodeById(id);
     }
 
     private double calculateEdgeWeight(EdgeType edgeType) {
-        switch (edgeType) {
-            case FOLLOW:
-                return 1.0;
-            case RETWEET:
-                return 2.0;
-            case REPLY:
-                return 3.0;
-            default:
-                return 1.0;
-        }
+        return switch (edgeType) {
+            case FOLLOW -> 1.0;
+            case RETWEET -> 2.0;
+            case REPLY -> 3.0;
+            default -> 1.0;
+        };
     }
 }

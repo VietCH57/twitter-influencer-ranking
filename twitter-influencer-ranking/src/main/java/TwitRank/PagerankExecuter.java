@@ -7,13 +7,9 @@ import TwitRank.rank.PageRankCalculator;
 import TwitRank.util.FileManager;
 
 import java.io.File;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class PagerankExecuter {
-
     private static final String INPUT_FILE = "cleaned_data.xlsx";
     private static final String OUTPUT_FILE = "ranking_output.xlsx";
 
@@ -21,20 +17,7 @@ public class PagerankExecuter {
         System.out.println("Twitter Influencer Ranking Program");
         System.out.println("Current User: " + System.getProperty("user.name"));
 
-        ZonedDateTime utcTime = ZonedDateTime.now(ZoneOffset.UTC);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        System.out.println("Start Time (UTC): " + utcTime.format(formatter));
-
-        String workingDir = System.getProperty("user.dir");
-        System.out.println("Working Directory = " + workingDir);
-
         File inputFile = new File(INPUT_FILE);
-        System.out.println("Looking for input file at: " + inputFile.getAbsolutePath());
-
-        if (!inputFile.exists()) {
-            System.out.println("Error: Input file not found at: " + inputFile.getAbsolutePath());
-            return;
-        }
 
         GraphLoader graphLoader = new GraphLoader();
         Graph graph = graphLoader.loadGraphFromExcel(inputFile);
@@ -56,8 +39,5 @@ public class PagerankExecuter {
 
         FileManager fileManager = new FileManager();
         fileManager.createExcelFile(sortedScores, OUTPUT_FILE);
-
-        utcTime = ZonedDateTime.now(ZoneOffset.UTC);
-        System.out.println("End Time (UTC): " + utcTime.format(formatter));
     }
 }

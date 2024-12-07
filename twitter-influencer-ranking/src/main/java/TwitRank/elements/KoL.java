@@ -1,19 +1,16 @@
 package TwitRank.elements;
 
 public class KoL extends User {
-    private static final int MIN_FOLLOWER_COUNT = 500000;
-    private static final int MIN_REACTS = 2000;
-    private static final int MIN_COMMENTS = 100000;
-    private static final int MIN_REPOSTS = 500;
-
-    public KoL() {
-        super();
-    }
+    private static final int MIN_FOLLOWER_COUNT = 100000;
+    private static final int MIN_REACTS = 1000;
+    private static final int MIN_COMMENTS = 100;
+    private static final int MIN_REPOSTS = 300;
 
     public KoL(int id, String name, String username, int followerCount, int followingCount,
-               String linkToProfile, String linkToTweet, int views, int reacts, int comments, int reposts) {
-        super(id, name, username, followerCount, followingCount, linkToProfile, linkToTweet,
-                views, reacts, comments, reposts);
+               String linkToProfile, String linkToTweet, int views, int reacts,
+               int comments, int reposts) {
+        super(id, name, username, followerCount, followingCount, linkToProfile,
+                linkToTweet, views, reacts, comments, reposts);
 
         if (followerCount < MIN_FOLLOWER_COUNT ||
                 reacts < MIN_REACTS ||

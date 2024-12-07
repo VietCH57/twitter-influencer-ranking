@@ -9,8 +9,8 @@ import org.apache.commons.math3.linear.*;
 import java.util.*;
 
 public class PageRank {
-    private final double DAMPING_FACTOR;
-    private final int MAX_ITERATIONS;
+    private final double dampingFactor;
+    private final int maxIterations;
     private final Graph graph;
 
     // Weights for user metrics
@@ -20,10 +20,10 @@ public class PageRank {
     private static final double COMMENT_WEIGHT = 0.15;
     private static final double REPOST_WEIGHT = 0.15;
 
-    public PageRank(Graph graph, double DAMPING_FACTOR, int MAX_ITERATIONS) {
+    public PageRank(Graph graph, double dampingFactor, int maxIterations) {
         this.graph = graph;
-        this.DAMPING_FACTOR = DAMPING_FACTOR;
-        this.MAX_ITERATIONS = MAX_ITERATIONS;
+        this.dampingFactor = dampingFactor;
+        this.maxIterations = maxIterations;
     }
 
     private double calculateUserImportance(User user) {
@@ -43,17 +43,38 @@ public class PageRank {
     public Map<Node, Double> computePageRank() {
         Set<Node> nodes = graph.getAllNodes();
         int size = nodes.size();
-        RealMatrix matrix = new Array2DRowRealMatrix(size, size);
 
+        System.out.println("Starting PageRank computation for " + size + " nodes");
+
+        RealMatrix transitionMatrix = new Array2DRowRealMatrix(size, size);
         List<Node> nodeList = new ArrayList<>(nodes);
+        Map<Node, Integer> nodeIndexMap = createNodeIndexMapping(nodeList);
+
+        System.out.println("Building transition matrix...");
+        buildTransitionMatrix(transitionMatrix, nodeList, nodeIndexMap);
+
+        RealVector rankVector = initializeRankVector(nodeList);
+        RealVector teleportVector = createTeleportVector(nodeList);
+
+        System.out.println("Starting power iteration...");
+        rankVector = performPowerIteration(transitionMatrix, rankVector, teleportVector);
+
+        return createFinalResults(nodeList, rankVector);
+    }
+
+    private Map<Node, Integer> createNodeIndexMapping(List<Node> nodeList) {
         Map<Node, Integer> nodeIndexMap = new HashMap<>();
         for (int i = 0; i < nodeList.size(); i++) {
             nodeIndexMap.put(nodeList.get(i), i);
         }
+        return nodeIndexMap;
+    }
 
-        for (Node node : nodes) {
-            if (!(node instanceof User)) continue;
-            User sourceUser = (User) node;
+    private void buildTransitionMatrix(RealMatrix matrix, List<Node> nodeList,
+                                       Map<Node, Integer> nodeIndexMap) {
+        for (Node node : nodeList) {
+            if (!(node instanceof User sourceUser)) continue;
+
             List<Edge> outgoingEdges = graph.getOutgoingEdges(node);
             if (outgoingEdges.isEmpty()) continue;
 
@@ -65,56 +86,93 @@ public class PageRank {
                     .sum();
 
             for (Edge edge : outgoingEdges) {
-                int toIndex = nodeIndexMap.get(edge.getTarget());
-                double edgeTypeWeight = edge.getWeight();
-                double normalizedWeight = (edgeTypeWeight * sourceImportance) / totalWeight;
-                matrix.addToEntry(toIndex, fromIndex, normalizedWeight);
+                int toIndex = nodeIndexMap.get(edge.getTargetUser());
+                double normalizedWeight = (edge.getWeight() * sourceImportance) / totalWeight;
+                matrix.setEntry(toIndex, fromIndex, normalizedWeight);
             }
         }
+    }
 
-        RealVector rankVector = new ArrayRealVector(size);
-        RealVector teleportVector = new ArrayRealVector(size);
+    private RealVector initializeRankVector(List<Node> nodeList) {
+        RealVector rankVector = new ArrayRealVector(nodeList.size());
         double totalImportance = 0.0;
 
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
-            if (node instanceof User) {
-                double importance = calculateUserImportance((User) node);
+            if (node instanceof User user) {
+                double importance = calculateUserImportance(user);
                 totalImportance += importance;
                 rankVector.setEntry(i, importance);
+            }
+        }
+
+        if (totalImportance > 0) {
+            for (int i = 0; i < nodeList.size(); i++) {
+                rankVector.setEntry(i, rankVector.getEntry(i) / totalImportance);
+            }
+        } else {
+            double uniformValue = 1.0 / nodeList.size();
+            for (int i = 0; i < nodeList.size(); i++) {
+                rankVector.setEntry(i, uniformValue);
+            }
+        }
+
+        return rankVector;
+    }
+
+    private RealVector createTeleportVector(List<Node> nodeList) {
+        RealVector teleportVector = new ArrayRealVector(nodeList.size());
+        double totalImportance = 0.0;
+
+        for (int i = 0; i < nodeList.size(); i++) {
+            Node node = nodeList.get(i);
+            if (node instanceof User user) {
+                double importance = calculateUserImportance(user);
+                totalImportance += importance;
                 teleportVector.setEntry(i, importance);
             }
         }
 
         if (totalImportance > 0) {
-            for (int i = 0; i < size; i++) {
-                rankVector.setEntry(i, rankVector.getEntry(i) / totalImportance);
+            for (int i = 0; i < nodeList.size(); i++) {
                 teleportVector.setEntry(i, teleportVector.getEntry(i) / totalImportance);
             }
         } else {
-            rankVector = new ArrayRealVector(size, 1.0 / size);
-            teleportVector = new ArrayRealVector(size, 1.0 / size);
+            double uniformValue = 1.0 / nodeList.size();
+            for (int i = 0; i < nodeList.size(); i++) {
+                teleportVector.setEntry(i, uniformValue);
+            }
         }
 
-        for (int i = 0; i < MAX_ITERATIONS; i++) {
-            RealVector newRankVector = matrix.operate(rankVector)
-                    .mapMultiply(DAMPING_FACTOR)
-                    .add(teleportVector.mapMultiply(1 - DAMPING_FACTOR));
+        return teleportVector;
+    }
 
-            if (newRankVector.subtract(rankVector).getNorm() < 1e-10) {
-                System.out.println("PageRank converged after " + (i + 1) + " iterations");
-                rankVector = newRankVector;
-                break;
+    private RealVector performPowerIteration(RealMatrix transitionMatrix,
+                                             RealVector rankVector,
+                                             RealVector teleportVector) {
+        for (int iteration = 0; iteration < maxIterations; iteration++) {
+            RealVector newRankVector = transitionMatrix.operate(rankVector)
+                    .mapMultiply(dampingFactor)
+                    .add(teleportVector.mapMultiply(1 - dampingFactor));
+
+            double diff = newRankVector.subtract(rankVector).getNorm();
+
+            if (diff < 1e-10) {
+                return newRankVector;
             }
 
             rankVector = newRankVector;
         }
 
+        System.out.println("Maximum iterations (" + maxIterations + ") reached");
+        return rankVector;
+    }
+
+    private Map<Node, Double> createFinalResults(List<Node> nodeList, RealVector rankVector) {
         Map<Node, Double> pageRankScores = new HashMap<>();
         for (int i = 0; i < nodeList.size(); i++) {
             pageRankScores.put(nodeList.get(i), rankVector.getEntry(i));
         }
-
         return pageRankScores;
     }
 }

@@ -1,8 +1,8 @@
 package TwitRank.util;
 
-import TwitRank.elements.KoL;
 import TwitRank.elements.Node;
 import TwitRank.elements.User;
+import TwitRank.elements.KoL;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -14,47 +14,62 @@ public class FileManager {
     public void createExcelFile(List<Map.Entry<Node, Double>> sortedScores, String outputFile) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Rankings");
+            createHeaderRow(sheet);
+            int kolCount = populateScores(sheet, sortedScores);
+            autoSizeColumns(sheet);
+            saveWorkbook(workbook, outputFile, kolCount);
+        } catch (IOException e) {
+            System.out.println("Error creating output file: " + e.getMessage());
+        }
+    }
 
-            Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("Rank");
-            headerRow.createCell(1).setCellValue("User ID");
-            headerRow.createCell(2).setCellValue("Name");
-            headerRow.createCell(3).setCellValue("Username");
-            headerRow.createCell(4).setCellValue("Followers Count");
-            headerRow.createCell(5).setCellValue("PageRank Score");
+    private void createHeaderRow(Sheet sheet) {
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Rank", "User ID", "Name", "Username", "Followers Count", "PageRank Score"};
 
-            int rowNum = 1;
-            int rank = 1;
-            int totalUsers = 0;
+        for (int i = 0; i < headers.length; i++) {
+            headerRow.createCell(i).setCellValue(headers[i]);
+        }
+    }
 
-            System.out.println("Creating ranking output file...");
+    private int populateScores(Sheet sheet, List<Map.Entry<Node, Double>> sortedScores) {
+        int rowNum = 1;
+        int rank = 1;
+        int kolCount = 0;
 
-            for (Map.Entry<Node, Double> entry : sortedScores) {
-                User user = (User) entry.getKey();
-                if (user.getFollowerCount() >= KoL.getMinFollowerCount()) {
+        for (Map.Entry<Node, Double> entry : sortedScores) {
+            if (entry.getKey() instanceof User user) {
+                boolean isKoL = user.getFollowerCount() >= KoL.getMinFollowerCount() &&
+                        user.getReacts() >= KoL.getMinReacts() &&
+                        user.getComments() >= KoL.getMinComments() &&
+                        user.getReposts() >= KoL.getMinReposts();
+
+                if (isKoL) {
                     Row row = sheet.createRow(rowNum++);
-                    row.createCell(0).setCellValue(rank++);  // Increment rank only when creating a row
+                    row.createCell(0).setCellValue(rank++);
                     row.createCell(1).setCellValue(user.getId());
                     row.createCell(2).setCellValue(user.getName());
                     row.createCell(3).setCellValue(user.getUsername());
                     row.createCell(4).setCellValue(user.getFollowerCount());
                     row.createCell(5).setCellValue(entry.getValue());
-                    totalUsers++;
+                    kolCount++;
                 }
             }
+        }
+        return kolCount;
+    }
 
-            for (int i = 0; i < 6; i++) {
-                sheet.autoSizeColumn(i);
-            }
+    private void autoSizeColumns(Sheet sheet) {
+        for (int i = 0; i < 6; i++) {
+            sheet.autoSizeColumn(i);
+        }
+    }
 
-            File file = new File(outputFile);
-            try (FileOutputStream fileOut = new FileOutputStream(file)) {
-                workbook.write(fileOut);
-                System.out.println("Ranking file created successfully with " + totalUsers + " users ranked");
-            }
-
-        } catch (IOException e) {
-            System.out.println("Error creating output file: " + e.getMessage());
+    private void saveWorkbook(Workbook workbook, String outputFile, int kolCount) throws IOException {
+        File file = new File(outputFile);
+        try (FileOutputStream fileOut = new FileOutputStream(file)) {
+            workbook.write(fileOut);
+            System.out.println("Ranking file created with " + kolCount + " KoLs");
         }
     }
 }
