@@ -29,7 +29,7 @@ import java.util.Map;
 public class GUI extends Application {
     private Graph graph;
     private TableView<RankingEntry> rankingTable;
-    private Label statusLabel_transform, statusLabel_clean, statusLabel_graph, statusLabel_pagerank;
+    private Label statusLabel_reset, statusLabel_transform, statusLabel_clean, statusLabel_graph, statusLabel_pagerank;
 
     public static void main(String[] args) {
         launch(args);
@@ -59,7 +59,13 @@ public class GUI extends Application {
         Button computeRankButton = new Button("Compute Rankings");
         computeRankButton.setOnAction(e -> computePageRank());
 
+        //Reset Button
+        Button resetButton = new Button("Reset");
+        resetButton.setTooltip(new Tooltip("Click to reset all data and UI"));
+        resetButton.setOnAction(e -> resetApplication());
+
         // Status label
+        statusLabel_reset = new Label(); statusLabel_reset.setManaged(false);
         statusLabel_transform = new Label(); statusLabel_transform.setManaged(false);
         statusLabel_clean = new Label(); statusLabel_clean.setManaged(false);
         statusLabel_graph = new Label(); statusLabel_graph.setManaged(false);
@@ -69,6 +75,8 @@ public class GUI extends Application {
         rankingTable = createRankingTable();
 
         root.getChildren().addAll(
+                resetButton,
+                statusLabel_reset,
                 transformDataButton,
                 statusLabel_transform,
                 cleanDataButton,
@@ -118,6 +126,7 @@ public class GUI extends Application {
     }
 
     private void cleanData() {
+        statusLabel_clean.setManaged(true);
         statusLabel_clean.setText("Progressing...");
 
         new Thread(() -> {
@@ -125,9 +134,9 @@ public class GUI extends Application {
             dataCleaner.cleanData();
 
             Platform.runLater(() -> {
-                statusLabel_transform.setText("Data cleaned");
+                statusLabel_clean.setText("Data cleaned");
                 statusLabel_graph.setManaged(true);
-                statusLabel_clean.setText("Ready to build graph");
+                statusLabel_graph.setText("Ready to build graph");
             });
         }).start();
     }
@@ -135,6 +144,7 @@ public class GUI extends Application {
     private void buildGraph() {
         File inputFile = new File("cleaned_data.xlsx");
 
+        statusLabel_graph.setManaged(true);
         statusLabel_graph.setText("Progressing...");
 
         new Thread(() -> {
@@ -154,6 +164,7 @@ public class GUI extends Application {
             return;
         }
 
+        statusLabel_pagerank.setManaged(true);
         statusLabel_pagerank.setText("Progressing...");
 
         new Thread(() -> {
@@ -183,6 +194,32 @@ public class GUI extends Application {
                 statusLabel_pagerank.setText("PageRank computed for " + rankings.size() + " users");
             });
         }).start();
+    }
+
+    private void resetApplication() {
+        statusLabel_reset.setManaged(true);
+        statusLabel_reset.setText("Resetting");
+
+        // Reset Graph and Ranking Table
+        graph = null;
+        rankingTable.setItems(FXCollections.emptyObservableList());
+
+        // Reset all status labels
+        statusLabel_transform.setManaged(false);
+        statusLabel_clean.setManaged(false);
+        statusLabel_graph.setManaged(false);
+        statusLabel_graph.setVisible(false);
+        statusLabel_pagerank.setManaged(false);
+
+        // Clear selected file if any
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().clear();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Files", "*.xlsx"));
+        fileChooser.getSelectedExtensionFilter();
+
+        Platform.runLater(() -> {
+            statusLabel_reset.setManaged(false);
+        });
     }
 
     private TableView<RankingEntry> createRankingTable() {

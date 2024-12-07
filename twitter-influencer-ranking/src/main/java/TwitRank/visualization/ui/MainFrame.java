@@ -21,6 +21,7 @@ public class MainFrame extends JFrame {
     private final Component graphView;
     private final Graph graph;
     private final Viewer viewer;
+    private final Layout layout;
     private final ZoomHandler zoomHandler;
     private final PanHandler panHandler;
     private final ViewerPipe viewerPipe;
@@ -45,12 +46,13 @@ public class MainFrame extends JFrame {
         super(DEFAULT_TITLE);
         this.graph = graph;
         this.viewer = viewer;
+        this.layout = layout;
         this.graphView = (Component) viewer.getDefaultView();
         this.viewerPipe = viewer.newViewerPipe();
         this.pumpRunning = new AtomicBoolean(true);
 
         // Initialize handlers
-        this.zoomHandler = new ZoomHandler(viewer, graph);
+        this.zoomHandler = new ZoomHandler(viewer, graph, layout);
         this.panHandler = new PanHandler(viewer);
 
         // Initialize control panel
