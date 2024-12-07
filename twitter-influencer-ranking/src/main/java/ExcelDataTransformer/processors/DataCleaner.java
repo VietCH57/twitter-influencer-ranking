@@ -18,15 +18,19 @@ public class DataCleaner {
 
             Workbook outputWorkbook = new XSSFWorkbook();
 
-            // First, process User sheet to find duplicates and their ID mappings
+            // First, identify connected users
+            Set<String> connectedUserIds = findConnectedUsers(inputWorkbook);
+            System.out.println("Found " + connectedUserIds.size() + " connected users");
+
+            // Process User sheet and find duplicates
             Sheet userSheet = inputWorkbook.getSheet("User");
             Map<String, List<UserEntry>> duplicateUsers = findDuplicateUsers(userSheet);
             Map<String, String> idMappings = createIdMappings(duplicateUsers);
 
-            // Clean User sheet (remove duplicates)
-            Set<String> validUserIds = cleanUserSheet(userSheet, outputWorkbook, duplicateUsers);
+            // Clean User sheet (remove duplicates AND isolated users)
+            Set<String> validUserIds = cleanUserSheet(userSheet, outputWorkbook, duplicateUsers, connectedUserIds);
 
-            // Clean and copy interaction sheets with ID updates and invalid target removal
+            // Clean and copy interaction sheets
             String[] sheetNames = {"User Follower", "User Following", "User Repost", "User Comment"};
             for (String sheetName : sheetNames) {
                 Sheet inputSheet = inputWorkbook.getSheet(sheetName);
@@ -57,6 +61,36 @@ public class DataCleaner {
             this.userId = userId;
             this.username = username;
         }
+    }
+
+    private Set<String> findConnectedUsers(Workbook workbook) {
+        Set<String> connectedUsers = new HashSet<>();
+
+        // Process all interaction sheets
+        String[] sheetNames = {"User Follower", "User Following", "User Repost", "User Comment"};
+
+        for (String sheetName : sheetNames) {
+            Sheet sheet = workbook.getSheet(sheetName);
+            if (sheet == null) continue;
+
+            // Skip header row
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row != null) {
+                    String sourceUserId = getValueAsString(row.getCell(1));
+                    String targetUserId = getValueAsString(row.getCell(3));
+
+                    if (sourceUserId != null) {
+                        connectedUsers.add(sourceUserId);
+                    }
+                    if (targetUserId != null) {
+                        connectedUsers.add(targetUserId);
+                    }
+                }
+            }
+        }
+
+        return connectedUsers;
     }
 
     private Map<String, List<UserEntry>> findDuplicateUsers(Sheet userSheet) {
@@ -98,7 +132,8 @@ public class DataCleaner {
     }
 
     private Set<String> cleanUserSheet(Sheet inputSheet, Workbook outputWorkbook,
-                                       Map<String, List<UserEntry>> duplicateUsers) {
+                                       Map<String, List<UserEntry>> duplicateUsers,
+                                       Set<String> connectedUserIds) {
         Sheet outputSheet = outputWorkbook.createSheet("User");
         System.out.println("Cleaning User sheet...");
 
@@ -109,9 +144,9 @@ public class DataCleaner {
             ExcelUtils.copyRow(headerRow, outputHeaderRow);
         }
 
-        // Use a Map to track unique users by their username
         Map<String, Row> uniqueUsers = new LinkedHashMap<>();
         Set<String> validUserIds = new HashSet<>();
+        int isolatedUsersCount = 0;
 
         // Process all rows except header
         for (int i = 1; i <= inputSheet.getLastRowNum(); i++) {
@@ -119,17 +154,20 @@ public class DataCleaner {
             if (inputRow != null) {
                 String username = getValueAsString(inputRow.getCell(2));
                 String userId = getValueAsString(inputRow.getCell(0));
+
                 if (username != null && userId != null) {
-                    // Keep only the first occurrence of each user
-                    if (!uniqueUsers.containsKey(username)) {
+                    // Check if user is connected and not already added
+                    if (connectedUserIds.contains(userId) && !uniqueUsers.containsKey(username)) {
                         uniqueUsers.put(username, inputRow);
                         validUserIds.add(userId);
+                    } else if (!connectedUserIds.contains(userId)) {
+                        isolatedUsersCount++;
                     }
                 }
             }
         }
 
-        // Write unique users to output sheet
+        // Write unique, connected users to output sheet
         int outputRowNum = 1;
         for (Row uniqueRow : uniqueUsers.values()) {
             Row outputRow = outputSheet.createRow(outputRowNum++);
@@ -137,7 +175,9 @@ public class DataCleaner {
         }
 
         ExcelUtils.autoSizeColumns(outputSheet);
-        System.out.println("Removed " + (inputSheet.getLastRowNum() - uniqueUsers.size()) + " duplicate users");
+        System.out.println("Removed " + isolatedUsersCount + " isolated users");
+        System.out.println("Removed " + (inputSheet.getLastRowNum() - uniqueUsers.size() - isolatedUsersCount) +
+                " duplicate users");
 
         return validUserIds;
     }
@@ -178,13 +218,10 @@ public class DataCleaner {
                     updatedIdCount++;
                 }
 
-                // Check if target user exists in User sheet
+                // Check if both users are valid
                 if (sourceUserId != null && targetUserId != null &&
                         validUserIds.contains(sourceUserId) && validUserIds.contains(targetUserId)) {
-                    // Initialize set for this source user if not exists
                     uniqueInteractions.putIfAbsent(sourceUserId, new HashSet<>());
-
-                    // If this is a new interaction for this source user, add it
                     if (uniqueInteractions.get(sourceUserId).add(targetUserId)) {
                         cleanedRows.add(inputRow);
                     }

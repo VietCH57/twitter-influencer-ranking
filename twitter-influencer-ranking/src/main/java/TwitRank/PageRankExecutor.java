@@ -9,7 +9,7 @@ import TwitRank.util.FileManager;
 import java.io.File;
 import java.util.*;
 
-public class PageRankExecuter {
+public class PageRankExecutor {
     private static final String INPUT_FILE = "cleaned_data.xlsx";
     private static final String OUTPUT_FILE = "ranking_output.xlsx";
 
