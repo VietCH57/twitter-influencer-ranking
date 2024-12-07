@@ -1,4 +1,4 @@
-package TwitterInfluencerRanking;
+package TwitterInfluencerRanking.model;
 
 public class User extends Node {
     private String name;

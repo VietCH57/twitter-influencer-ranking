@@ -1,4 +1,4 @@
-package TwitterInfluencerRanking;
+package TwitterInfluencerRanking.model;
 
 public class Edge {
     private Node source;

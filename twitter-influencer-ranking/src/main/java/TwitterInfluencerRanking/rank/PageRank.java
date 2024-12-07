@@ -1,5 +1,8 @@
-package TwitterInfluencerRanking;
+package TwitterInfluencerRanking.rank;
 
+import TwitterInfluencerRanking.graph.Graph;
+import TwitterInfluencerRanking.model.Edge;
+import TwitterInfluencerRanking.model.Node;
 import org.apache.commons.math3.linear.*;
 
 import java.util.*;

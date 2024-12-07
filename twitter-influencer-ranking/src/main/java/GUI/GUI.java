@@ -1,6 +1,11 @@
 package GUI;
 
-import TwitterInfluencerRanking.*;
+import TwitterInfluencerRanking.graph.Graph;
+import TwitterInfluencerRanking.model.KoL;
+import TwitterInfluencerRanking.model.Node;
+import TwitterInfluencerRanking.model.User;
+import TwitterInfluencerRanking.rank.PageRank;
+import TwitterInfluencerRanking.Main;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -17,7 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class GUI extends Application {
     private Graph graph;
@@ -90,20 +94,23 @@ public class GUI extends Application {
             PageRank pageRank = new PageRank(graph, 0.85, 100);
             Map<Node, Double> pageRankScores = pageRank.computePageRank();
 
-            List<Map.Entry<Node, Double>> sortedScores = Main.sortAndFilterPageRankScores(pageRankScores);
+            List<Map.Entry<Node, Double>> sortedScores = new ArrayList<>(pageRankScores.entrySet());
+            sortedScores.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
             Platform.runLater(() -> {
                 ObservableList<RankingEntry> rankings = FXCollections.observableArrayList();
                 int rank = 1;
                 for (Map.Entry<Node, Double> entry : sortedScores) {
                     User user = (User) entry.getKey();
-                    rankings.add(new RankingEntry(
-                            rank++,
-                            user.getId(),
-                            user.getUsername(),
-                            user.getFollowerCount(),
-                            entry.getValue()
-                    ));
+                    if (user.getFollowerCount() >= KoL.getMinFollowerCount()) {
+                        rankings.add(new RankingEntry(
+                                rank++,
+                                user.getId(),
+                                user.getUsername(),
+                                user.getFollowerCount(),
+                                entry.getValue()
+                        ));
+                    }
                 }
 
                 rankingTable.setItems(rankings);
