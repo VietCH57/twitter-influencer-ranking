@@ -1,8 +1,8 @@
 package TwitRank.graph;
 
-import TwitRank.model.Edge;
-import TwitRank.model.EdgeType;
-import TwitRank.model.Node;
+import TwitRank.elements.Edge;
+import TwitRank.elements.EdgeType;
+import TwitRank.elements.Node;
 
 import java.util.*;
 

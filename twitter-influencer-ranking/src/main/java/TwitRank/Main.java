@@ -2,7 +2,7 @@ package TwitRank;
 
 import TwitRank.graph.Graph;
 import TwitRank.graph.GraphLoader;
-import TwitRank.model.Node;
+import TwitRank.elements.Node;
 import TwitRank.rank.PageRankCalculator;
 import TwitRank.util.FileManager;
 

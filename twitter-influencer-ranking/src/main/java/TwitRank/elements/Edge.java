@@ -1,4 +1,4 @@
-package TwitRank.model;
+package TwitRank.elements;
 
 public class Edge {
     private Node source;

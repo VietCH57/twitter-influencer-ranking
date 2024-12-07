@@ -2,9 +2,9 @@ package GUI;
 
 import TwitRank.graph.Graph;
 import TwitRank.graph.GraphLoader;
-import TwitRank.model.KoL;
-import TwitRank.model.Node;
-import TwitRank.model.User;
+import TwitRank.elements.KoL;
+import TwitRank.elements.Node;
+import TwitRank.elements.User;
 import TwitRank.rank.PageRank;
 import javafx.application.Application;
 import javafx.application.Platform;

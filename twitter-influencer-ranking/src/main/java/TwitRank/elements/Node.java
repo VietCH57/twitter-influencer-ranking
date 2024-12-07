@@ -1,4 +1,4 @@
-package TwitRank.model;
+package TwitRank.elements;
 
 public abstract class Node {
     protected int id;
