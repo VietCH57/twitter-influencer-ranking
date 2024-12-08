@@ -68,10 +68,13 @@ public class XScraper {
         }
     }
 
-
-
     public void scrapeUser(WebDriver driver, WebElement xPathTweet, ExcelFileWriter excelFileWriter) {
         try {
+
+            if (checkToContinue(driver, xPathTweet)){
+                return;
+            }
+
             String name = scraper1(nameIndex, xPathTweet);
             String username = scraper1(userNameIndex, xPathTweet);
             String linkpage = scraper2(linkPageIndex, xPathTweet);
@@ -292,9 +295,6 @@ public class XScraper {
         }
     }
 
-
-
-
     public boolean checkToContinue(WebDriver driver, WebElement xPathTweet){
         for (String index : scraper2Index){
             String check = scraper2(index, xPathTweet);
@@ -309,6 +309,20 @@ public class XScraper {
             }
         }
         return false;
+    }
+
+    public WebElement FilterTweet (WebDriver driver, List<WebElement> Tweets, String link){
+        try {
+            for (WebElement Tweet : Tweets) {
+                String m = scraper2(linkPageIndex, Tweet);
+                if (m.equals(link)){
+                    return Tweet;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Co loi trong qua trinh loc Tweet: " + e.getMessage());
+        }
+        return Tweets.getFirst();
     }
 
 }

@@ -8,8 +8,8 @@ import java.util.List;
 
 public class ReadKeyWord {
 
-    private List<String> links = new ArrayList<>();
-    private String filePath;
+    List<String> links = new ArrayList<>();
+    String filePath;
 
     public ReadKeyWord() {}
 
