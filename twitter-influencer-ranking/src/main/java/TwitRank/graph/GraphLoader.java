@@ -4,6 +4,7 @@ import TwitRank.elements.Edge;
 import TwitRank.elements.EdgeType;
 import TwitRank.elements.Node;
 import TwitRank.elements.User;
+import TwitRank.elements.KoL;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
@@ -128,13 +129,27 @@ public class GraphLoader {
             int comments = (int) getNumericCellValue(row.getCell(9));
             int reposts = (int) getNumericCellValue(row.getCell(10));
 
-            return new User(id, name, username, followerCount, followingCount,
-                    linkToProfile, linkToTweet, views, reacts, comments, reposts);
+            // Create either a KoL or regular User based on metrics
+            if (meetsKoLCriteria(followerCount, reacts, comments, reposts)) {
+                return new KoL(id, name, username, followerCount, followingCount,
+                        linkToProfile, linkToTweet, views, reacts, comments, reposts);
+            } else {
+                return new User(id, name, username, followerCount, followingCount,
+                        linkToProfile, linkToTweet, views, reacts, comments, reposts);
+            }
         } catch (Exception e) {
             throw new IllegalArgumentException("Error creating user from row " + (row.getRowNum() + 1) +
                     ": " + e.getMessage());
         }
     }
+
+    private boolean meetsKoLCriteria(int followerCount, int reacts, int comments, int reposts) {
+        return followerCount >= KoL.getMinFollowerCount() &&
+                reacts >= KoL.getMinReacts() &&
+                comments >= KoL.getMinComments() &&
+                reposts >= KoL.getMinReposts();
+    }
+
 
     private String getStringCellValue(Cell cell) {
         if (cell == null) return "";
