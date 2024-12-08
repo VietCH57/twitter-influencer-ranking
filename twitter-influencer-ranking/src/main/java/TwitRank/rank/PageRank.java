@@ -21,9 +21,22 @@ public class PageRank {
     private static final double REPOST_WEIGHT = 0.15;
 
     public PageRank(Graph graph, double dampingFactor, int maxIterations) {
+        validateInput(graph, dampingFactor, maxIterations);
         this.graph = graph;
         this.dampingFactor = dampingFactor;
         this.maxIterations = maxIterations;
+    }
+
+    private void validateInput(Graph graph, double dampingFactor, int maxIterations) {
+        if (graph == null || graph.getAllNodes().isEmpty()) {
+            throw new IllegalArgumentException("Graph cannot be null or empty");
+        }
+        if (dampingFactor <= 0 || dampingFactor >= 1) {
+            throw new IllegalArgumentException("Damping factor must be between 0 and 1");
+        }
+        if (maxIterations <= 0) {
+            throw new IllegalArgumentException("Number of iterations must be positive");
+        }
     }
 
     private double calculateUserImportance(User user) {

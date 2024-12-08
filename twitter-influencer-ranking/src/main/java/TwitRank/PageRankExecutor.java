@@ -3,7 +3,7 @@ package TwitRank;
 import TwitRank.graph.Graph;
 import TwitRank.graph.GraphLoader;
 import TwitRank.elements.Node;
-import TwitRank.rank.PageRankCalculator;
+import TwitRank.rank.PageRank;
 import TwitRank.util.FileManager;
 
 import java.io.File;
@@ -29,8 +29,8 @@ public class PageRankExecutor {
 
         System.out.println("Successfully loaded graph data. Computing PageRank scores...");
 
-        PageRankCalculator pageRankCalculator = new PageRankCalculator();
-        Map<Node, Double> pageRankScores = pageRankCalculator.computePageRank(graph, 0.85, 100);
+        PageRank pageRank = new PageRank(graph, 0.85, 100);
+        Map<Node, Double> pageRankScores = pageRank.computePageRank();
 
         List<Map.Entry<Node, Double>> sortedScores = new ArrayList<>(pageRankScores.entrySet());
         sortedScores.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
