@@ -35,10 +35,10 @@ public class GraphVisualizer {
         Viewer viewer = this.visualGraph.display();
         viewer.enableAutoLayout(layout);
 
-        // Install zoom and pan handlers
+        // Install zoom and pan handlers in the correct order
         View view = viewer.getDefaultView();
         ZoomHandler.install(viewer, visualGraph);
-        PanHandler.install(view);  // Add this line
+        PanHandler.install(view);  // Pass zoom handler to pan handler
 
         viewer.getDefaultView().getCamera().setViewPercent(INITIAL_VIEW_PERCENT);
 

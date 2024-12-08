@@ -53,7 +53,17 @@ public class GraphConverter {
                 if (!addedEdges.contains(edgeKey)) {
                     try {
                         String edgeId = "edge" + addedEdges.size();
-                        targetGraph.addEdge(edgeId, sourceId, targetId, true);
+                        org.graphstream.graph.Edge gsEdge = targetGraph.addEdge(edgeId, sourceId, targetId, true);
+
+                        // Set edge class based on node types
+                        if (sourceNode instanceof KoL) {
+                            gsEdge.setAttribute("ui.class", "kolany");
+                        } else if (edge.getTargetUser() instanceof KoL) {
+                            gsEdge.setAttribute("ui.class", "userkol");
+                        } else {
+                            gsEdge.setAttribute("ui.class", "useruser");
+                        }
+
                         addedEdges.add(edgeKey);
                     } catch (Exception e) {
                         // Skip if edge can't be added

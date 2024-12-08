@@ -20,6 +20,7 @@ public class PanHandler implements MouseListener, MouseMotionListener, MouseMana
     private boolean isPanning;
     private final JPanel panel;
     private GraphicGraph graph;
+    private static final double SMOOTHING_FACTOR = 0.85; // Smoothing factor for panning
 
     public PanHandler(View view) {
         this.view = view;
@@ -29,7 +30,6 @@ public class PanHandler implements MouseListener, MouseMotionListener, MouseMana
         view.setMouseManager(this);
     }
 
-    // Let's try with the most basic implementation
     @Override
     public EnumSet<InteractiveElement> getManagedTypes() {
         return EnumSet.noneOf(InteractiveElement.class);
@@ -42,7 +42,7 @@ public class PanHandler implements MouseListener, MouseMotionListener, MouseMana
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isRightMouseButton(e)) {
+        if (SwingUtilities.isMiddleMouseButton(e)) {
             isPanning = true;
             lastMousePosition = camera.transformPxToGu(e.getX(), e.getY());
             panel.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
@@ -52,7 +52,7 @@ public class PanHandler implements MouseListener, MouseMotionListener, MouseMana
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (SwingUtilities.isRightMouseButton(e)) {
+        if (SwingUtilities.isMiddleMouseButton(e)) {
             isPanning = false;
             panel.setCursor(Cursor.getDefaultCursor());
             e.consume();
@@ -68,11 +68,10 @@ public class PanHandler implements MouseListener, MouseMotionListener, MouseMana
             double dx = currentPosition.x - lastMousePosition.x;
             double dy = currentPosition.y - lastMousePosition.y;
 
-            camera.setViewCenter(
-                    center.x - dx,
-                    center.y - dy,
-                    center.z
-            );
+            double newX = center.x - dx * SMOOTHING_FACTOR;
+            double newY = center.y - dy * SMOOTHING_FACTOR;
+
+            camera.setViewCenter(newX, newY, center.z);
 
             lastMousePosition = currentPosition;
             e.consume();
