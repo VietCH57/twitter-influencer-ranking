@@ -217,7 +217,7 @@ public class XScraper {
         } catch (Exception e) {
             System.out.println("Loi khi lay danh sach Repost: " + e.getMessage());
         }
-        System.out.println("So userrepost lay duoc la: " + userretweetdetects.size());
+        //System.out.println("So userrepost lay duoc la: " + userretweetdetects.size());
     }
 
     public void crawlUserNameComment (WebDriver driver, Page page, String listType){
@@ -258,7 +258,7 @@ public class XScraper {
         } catch (Exception e) {
             System.out.println("Loi khi lay danh sach Comment: " + e.getMessage());
         }
-        System.out.println("So usercomment lay duoc la: " + (usercommentdetects.size() - 1));
+        //System.out.println("So usercomment lay duoc la: " + (usercommentdetects.size() - 1));
     }
 
     public void crawlUserNameFollowingFollowers(WebDriver driver, Page page, String listType){
