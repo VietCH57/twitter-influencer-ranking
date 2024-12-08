@@ -2,6 +2,8 @@ package Visualizer;
 
 import TwitRank.graph.Graph;
 import TwitRank.graph.GraphLoader;
+import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.Viewer.CloseFramePolicy;
 
 import java.io.File;
 
@@ -23,7 +25,10 @@ public class VisualizationApp {
         GraphConverter converter = new GraphConverter(graph, visualizer.getVisualGraph());
         converter.convert();
 
-        // Display the graph
-        visualizer.display();
+        // Display the graph and get the viewer
+        Viewer viewer = visualizer.display();
+
+        // Set close frame policy to exit the application
+        viewer.setCloseFramePolicy(CloseFramePolicy.EXIT);
     }
 }

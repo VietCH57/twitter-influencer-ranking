@@ -15,14 +15,16 @@ public class ExcelFileWriter {
     private Sheet sheet3;
     private Sheet sheet4;
     private Sheet sheet5;
+    private String fileName;
 
-    public ExcelFileWriter() {
+    public ExcelFileWriter(String fileName) {
         this.workbook = new XSSFWorkbook();
         this.sheet1 = workbook.createSheet("User");
         this.sheet2 = workbook.createSheet("User Follower");
         this.sheet3 = workbook.createSheet("User Following");
         this.sheet4 = workbook.createSheet("User Repost");
         this.sheet5 = workbook.createSheet("User Comment");
+        this.fileName = fileName;
     }
 
     public void writePageData(Page page){
@@ -68,7 +70,7 @@ public class ExcelFileWriter {
         }
     }
 
-    public void saveToFile(String fileName) {
+    public void saveToFile() {
         try (FileOutputStream fileOut = new FileOutputStream(fileName)){
             workbook.write(fileOut);
             System.out.println("File written to: " + fileName);

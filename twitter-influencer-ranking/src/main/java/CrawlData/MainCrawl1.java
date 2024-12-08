@@ -12,12 +12,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainCrawl1 extends MainCrawl{
+public class MainCrawl1 {
 
     public MainCrawl1 () {}
 
-    @Override
-    public void ControlMainCrawl (){
+    public void ControlMainCrawl (String filePath1, String filePath2){
         //Duong dan toi GeckoDriver
         System.setProperty("webdriver.gecko.driver", "D:\\Project OOP\\Gecko\\geckodriver.exe");
         //Cau hinh cho Firefox
@@ -31,10 +30,10 @@ public class MainCrawl1 extends MainCrawl{
         //Khoi tao doi tuong cua lop XScraper de quan ly qua trinh crawl du lieu
         XScraper scraper = new XScraper();
         //Khoi tao doi tuong cua lop ExcelFileWriter de quan ly qua trinh ghi du lieu ra file
-        ExcelFileWriter excelWriter = new ExcelFileWriter();
+        ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
         //Khoi tao doi tuong cua lop ReadUserName de quan ly qua trinh doc tu khoa
         ReadUserName run = new ReadUserName();
-        run.setfilePath("C:\\Users\\Admin\\IdeaProjects\\twitter-influencer-ranking\\twitter-influencer-ranking\\src\\main\\java\\CrawlData\\userNameSearch.txt");
+        run.setfilePath(filePath1);
         run.setLinks();
         run.getLinksSize();
         //Khoi tao doi tuong cua lop XLoginAndClose de quan ly dang nhap va dong
@@ -43,7 +42,7 @@ public class MainCrawl1 extends MainCrawl{
             //Mo trinh duyet va dang nhap
             try {
                 lg.loginAction(driver);
-                Thread.sleep(25000);
+                Thread.sleep(30000);
             } catch (Exception e){
                 System.out.println("Co loi trong dang nhap o ham Main");
             }
@@ -61,17 +60,21 @@ public class MainCrawl1 extends MainCrawl{
                 Thread.sleep(5000);
                 List<WebElement> Tweets = driver.findElements(By.xpath("//section/div/div/div/div/div/article/div/div/div[2]"));
                 WebElement Tweet = scraper.FilterTweet(driver, Tweets, link);
+                Thread.sleep(3000);
+                if (scraper.checkToContinue(driver, Tweet)){
+                    return;
+                }
                 scraper.scrapeUser(driver, Tweet, excelWriter);
-                excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
+                excelWriter.saveToFile();
             } catch (TimeoutException e) {
                 System.out.println("Hanh dong bi qua thoi gian:" + e.getMessage());
-                excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
+                excelWriter.saveToFile();
                 continue;
             } catch (NoSuchElementException e){
                 continue;
             } catch (Exception e) {
                 e.getMessage();
-                excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
+                excelWriter.saveToFile();
                 continue;
             }
         }

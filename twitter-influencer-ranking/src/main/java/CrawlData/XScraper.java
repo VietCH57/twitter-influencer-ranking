@@ -71,14 +71,11 @@ public class XScraper {
     public void scrapeUser(WebDriver driver, WebElement xPathTweet, ExcelFileWriter excelFileWriter) {
         try {
 
-            if (checkToContinue(driver, xPathTweet)){
-                return;
-            }
-
             String name = scraper1(nameIndex, xPathTweet);
             String username = scraper1(userNameIndex, xPathTweet);
             String linkpage = scraper2(linkPageIndex, xPathTweet);
             String linkhottweet = scraper2(linkTweetIndex, xPathTweet);
+
             String numofviewinhottweet = scraper1(numOfViewInHotTweetIndex, xPathTweet);
             String numofreactinhottweet = scraper1(numOfReactInHotTweetIndex, xPathTweet);
             String numofcommentinhottweet = scraper1(numOfCommentInHotTweetIndex, xPathTweet);
