@@ -5,16 +5,19 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.*;
 
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainCrawl {
-    public MainCrawl(){};
+public class MainCrawl1 extends MainCrawl{
 
-    public void ControlMainCrawl () {
+    public MainCrawl1 () {}
+
+    @Override
+    public void ControlMainCrawl (){
         //Duong dan toi GeckoDriver
         System.setProperty("webdriver.gecko.driver", "D:\\Project OOP\\Gecko\\geckodriver.exe");
         //Cau hinh cho Firefox
@@ -29,13 +32,11 @@ public class MainCrawl {
         XScraper scraper = new XScraper();
         //Khoi tao doi tuong cua lop ExcelFileWriter de quan ly qua trinh ghi du lieu ra file
         ExcelFileWriter excelWriter = new ExcelFileWriter();
-        //Khoi tao doi tuong cua lop Scoller de quan ly cuon trang
-        Scoller sc = new Scoller();
-        //Khoi tao doi tuong cua lop ReadKeyWord de quan ly qua trinh doc tu khoa
-        ReadKeyWord rkw = new ReadKeyWord();
-        rkw.setfilePath("C:\\Users\\Admin\\IdeaProjects\\twitter-influencer-ranking\\twitter-influencer-ranking\\src\\main\\java\\CrawlData\\keyWordSearch.txt");
-        rkw.setLinks();
-        rkw.getLinksSize();
+        //Khoi tao doi tuong cua lop ReadUserName de quan ly qua trinh doc tu khoa
+        ReadUserName run = new ReadUserName();
+        run.setfilePath("C:\\Users\\Admin\\IdeaProjects\\twitter-influencer-ranking\\twitter-influencer-ranking\\src\\main\\java\\CrawlData\\userNameSearch.txt");
+        run.setLinks();
+        run.getLinksSize();
         //Khoi tao doi tuong cua lop XLoginAndClose de quan ly dang nhap va dong
         XLoginAndClose lg = new XLoginAndClose();
         do { //Neu nhu dang nhap that bai thi dong trinh duyet roi mo lai de dang nhap
@@ -49,29 +50,27 @@ public class MainCrawl {
             //Kiem tra trang thai dang nhap
         } while (!lg.checkLoginStatus(driver));
         //Khoi tao danh sach tim kiem
-        List<String> links = new ArrayList<>(rkw.getLinks());
+        List<String> links = new ArrayList<>(run.getLinks());
 
-        //Tim kiem tu khoa
+        //Tim kiem user
         for (String link : links) {
             try{
                 driver.navigate().to(link);
                 //Doi ket qua hien thi
                 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-                //Lay danh sach Tweet va duyet Tweet
-                for (int i = 1; i <= 2; i++){
-                    Thread.sleep(5000);
-                    List<WebElement> tweets = new ArrayList<>(scraper.Tweet(driver));
-                    scraper.User(tweets, driver, excelWriter);
-                    excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
-                    sc.scoller(6000, driver);
-                }
+                Thread.sleep(5000);
+                List<WebElement> Tweets = driver.findElements(By.xpath("//section/div/div/div/div/div/article/div/div/div[2]"));
+                WebElement Tweet = scraper.FilterTweet(driver, Tweets, link);
+                scraper.scrapeUser(driver, Tweet, excelWriter);
                 excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
             } catch (TimeoutException e) {
                 System.out.println("Hanh dong bi qua thoi gian:" + e.getMessage());
                 excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
                 continue;
+            } catch (NoSuchElementException e){
+                continue;
             } catch (Exception e) {
-                e.printStackTrace();
+                e.getMessage();
                 excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
                 continue;
             }
