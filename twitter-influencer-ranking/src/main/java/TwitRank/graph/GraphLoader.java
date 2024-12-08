@@ -20,10 +20,10 @@ public class GraphLoader {
              Workbook workbook = WorkbookFactory.create(fis)) {
 
             loadUsers(workbook.getSheet("User"), graph);
-            loadEdges(workbook.getSheet("User Follower"), graph, EdgeType.FOLLOW);
-            loadEdges(workbook.getSheet("User Following"), graph, EdgeType.FOLLOW);
-            loadEdges(workbook.getSheet("User Repost"), graph, EdgeType.RETWEET);
-            loadEdges(workbook.getSheet("User Comment"), graph, EdgeType.REPLY);
+            loadEdges(workbook.getSheet("User Follower"), graph, EdgeType.FOLLOW, true);
+            loadEdges(workbook.getSheet("User Following"), graph, EdgeType.FOLLOW, false);
+            loadEdges(workbook.getSheet("User Repost"), graph, EdgeType.RETWEET, true);
+            loadEdges(workbook.getSheet("User Comment"), graph, EdgeType.REPLY, true);
 
             return graph;
 
@@ -59,7 +59,7 @@ public class GraphLoader {
         System.out.println("Loaded " + rowCount + " users");
     }
 
-    private void loadEdges(Sheet sheet, Graph graph, EdgeType edgeType) {
+    private void loadEdges(Sheet sheet, Graph graph, EdgeType edgeType, boolean reverseDirection) {
         if (sheet == null) return;
 
         System.out.println("Loading " + edgeType + " relationships...");
@@ -97,7 +97,12 @@ public class GraphLoader {
                 }
 
                 double weight = calculateEdgeWeight(edgeType);
-                Edge edge = new Edge(sourceNode, sourceId, targetNode, targetId, edgeType, weight);
+                Edge edge;
+                if (reverseDirection) {
+                    edge = new Edge(targetNode, targetId, sourceNode, sourceId, edgeType, weight);
+                } else {
+                    edge = new Edge(sourceNode, sourceId, targetNode, targetId, edgeType, weight);
+                }
                 graph.addEdge(edge);
                 relationCount++;
 
