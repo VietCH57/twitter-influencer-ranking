@@ -38,7 +38,6 @@ public class GraphConverter {
     }
 
     private void addEdges() {
-        // Keep track of edges we've already added
         java.util.Set<String> addedEdges = new java.util.HashSet<>();
 
         for (Node sourceNode : sourceGraph.getAllNodes()) {
@@ -49,24 +48,26 @@ public class GraphConverter {
                 // Create a unique identifier for this edge
                 String edgeKey = sourceId + "->" + targetId;
 
-                // Only add the edge if we haven't seen it before
                 if (!addedEdges.contains(edgeKey)) {
                     try {
                         String edgeId = "edge" + addedEdges.size();
                         org.graphstream.graph.Edge gsEdge = targetGraph.addEdge(edgeId, sourceId, targetId, true);
 
-                        // Set edge class based on node types
-                        if (sourceNode instanceof KoL) {
-                            gsEdge.setAttribute("ui.class", "kolany");
-                        } else if (edge.getTargetUser() instanceof KoL) {
-                            gsEdge.setAttribute("ui.class", "userkol");
-                        } else {
-                            gsEdge.setAttribute("ui.class", "useruser");
+                        // Set edge class based on relationship type
+                        switch (edge.getType()) {
+                            case FOLLOW:
+                                gsEdge.setAttribute("ui.class", "follow");
+                                break;
+                            case RETWEET:
+                                gsEdge.setAttribute("ui.class", "repost");
+                                break;
+                            case REPLY:
+                                gsEdge.setAttribute("ui.class", "comment");
+                                break;
                         }
 
                         addedEdges.add(edgeKey);
                     } catch (Exception e) {
-                        // Skip if edge can't be added
                         System.out.println("Skipping duplicate edge: " + edgeKey);
                     }
                 }

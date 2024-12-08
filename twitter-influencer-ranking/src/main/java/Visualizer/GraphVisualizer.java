@@ -6,6 +6,9 @@ import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
+import org.graphstream.ui.swing_viewer.SwingViewer;  // Add this import
+import javax.swing.*;
+import java.awt.*;
 
 public class GraphVisualizer {
     private final Graph visualGraph;
@@ -14,34 +17,49 @@ public class GraphVisualizer {
     public GraphVisualizer() {
         System.setProperty("org.graphstream.ui", "swing");
         this.visualGraph = new SingleGraph("Twitter Network");
-
-        // Apply styles
         visualGraph.setAttribute("ui.stylesheet", StyleSheet.DEFAULT_STYLE);
-
-        // Enable high-quality rendering
         visualGraph.setAttribute("ui.quality");
         visualGraph.setAttribute("ui.antialias");
     }
 
     public Viewer display() {
-        // Create and configure the layout
         SpringBox layout = new SpringBox(false);
         layout.setForce(0.3);
         layout.setQuality(0.9);
 
         setupInitialPositions();
 
-        // Display with the configured layout
-        Viewer viewer = this.visualGraph.display();
+        // Create SwingViewer instead of abstract Viewer
+        SwingViewer viewer = new SwingViewer(visualGraph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+        View view = viewer.addDefaultView(false);
         viewer.enableAutoLayout(layout);
 
-        // Install zoom and pan handlers in the correct order
-        View view = viewer.getDefaultView();
+        // Create the main frame
+        JFrame frame = new JFrame("Graph Visualization");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Create main panel with BorderLayout
+        JPanel mainPanel = new JPanel(new BorderLayout());
+
+        // Create and add search panel
+        SearchDisplay searchDisplay = new SearchDisplay(visualGraph, viewer);
+        mainPanel.add(searchDisplay.getSearchPanel(), BorderLayout.NORTH);
+
+        // Add the graph view
+        mainPanel.add((Component) view, BorderLayout.CENTER);
+
+        // Set up the frame
+        frame.add(mainPanel);
+        frame.setSize(1024, 768);
+        frame.setLocationRelativeTo(null);
+
+        // Install handlers
         ZoomHandler.install(viewer, visualGraph);
-        PanHandler.install(view);  // Pass zoom handler to pan handler
+        PanHandler.install(view);
 
         viewer.getDefaultView().getCamera().setViewPercent(INITIAL_VIEW_PERCENT);
 
+        frame.setVisible(true);
         return viewer;
     }
 
@@ -49,11 +67,9 @@ public class GraphVisualizer {
         int nodeCount = visualGraph.getNodeCount();
         if (nodeCount == 0) return;
 
-        // Calculate optimal spacing based on golden ratio
         double phi = (1 + Math.sqrt(5)) / 2;
         double goldenAngle = 2 * Math.PI * (1 - 1/phi);
 
-        // Position nodes in a spiral pattern
         int i = 0;
         for (Node node : visualGraph) {
             double radius = 50 * Math.sqrt(i + 1);
@@ -62,9 +78,11 @@ public class GraphVisualizer {
             double x = radius * Math.cos(theta);
             double y = radius * Math.sin(theta);
 
+            // Set both xyz and x,y attributes
             node.setAttribute("xyz", x, y, 0);
+            node.setAttribute("x", x);
+            node.setAttribute("y", y);
 
-            // Only freeze KOL positions
             if ("kol".equals(node.getAttribute("ui.class"))) {
                 node.setAttribute("layout.frozen");
             }
