@@ -16,21 +16,21 @@ public class MainCrawl1 {
 
     public MainCrawl1 () {}
 
-    public void ControlMainCrawl (String filePath1, String filePath2){
+    public void ControlMainCrawl (String filePath1, String filePath2, ExcelFileWriter excelWriter) {
         //Duong dan toi GeckoDriver
-        System.setProperty("webdriver.gecko.driver", "D:\\Project OOP\\Gecko\\geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", "C:\\Users\\Administrator\\Documents\\Gecko\\geckodriver.exe");
         //Cau hinh cho Firefox
         FirefoxOptions options = new FirefoxOptions();
         options.addPreference("dom.webdriver.enabled", false); // Ẩn navigator.webdriver
         options.addPreference("general.useragent.override",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0");
-        options.setBinary("C:\\Users\\Admin\\AppData\\Local\\Mozilla Firefox\\firefox.exe");
+        options.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe");
         //Khoi tao WebDriver
         WebDriver driver = new FirefoxDriver(options);
         //Khoi tao doi tuong cua lop XScraper de quan ly qua trinh crawl du lieu
         XScraper scraper = new XScraper();
         //Khoi tao doi tuong cua lop ExcelFileWriter de quan ly qua trinh ghi du lieu ra file
-        ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
+        //ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
         //Khoi tao doi tuong cua lop ReadUserName de quan ly qua trinh doc tu khoa
         ReadUserName run = new ReadUserName();
         run.setfilePath(filePath1);
@@ -42,7 +42,7 @@ public class MainCrawl1 {
             //Mo trinh duyet va dang nhap
             try {
                 lg.loginAction(driver);
-                Thread.sleep(30000);
+                Thread.sleep(40000);
             } catch (Exception e){
                 System.out.println("Co loi trong dang nhap o ham Main");
             }
@@ -62,7 +62,7 @@ public class MainCrawl1 {
                 WebElement Tweet = scraper.FilterTweet(driver, Tweets, link);
                 Thread.sleep(3000);
                 if (scraper.checkToContinue(driver, Tweet)){
-                    return;
+                    continue;
                 }
                 scraper.scrapeUser(driver, Tweet, excelWriter);
                 excelWriter.saveToFile();
@@ -79,6 +79,5 @@ public class MainCrawl1 {
             }
         }
         lg.closeBrowser(driver);
-        excelWriter.close();
     }
 }
