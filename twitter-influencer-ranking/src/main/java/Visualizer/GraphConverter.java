@@ -25,7 +25,8 @@ public class GraphConverter {
             if (node instanceof User) {
                 String nodeId = String.valueOf(node.getId());
                 org.graphstream.graph.Node gsNode = targetGraph.addNode(nodeId);
-                gsNode.setAttribute("ui.label", ((User) node).getUsername());
+                // Store username as attribute but don't set label yet
+                gsNode.setAttribute("username", ((User) node).getUsername());
 
                 if (node instanceof KoL) {
                     gsNode.setAttribute("ui.class", "kol");

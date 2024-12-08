@@ -1,43 +1,76 @@
 package Visualizer;
 
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.View;
+import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 
 public class GraphVisualizer {
     private final Graph visualGraph;
-    private static final String GRAPH_CSS = """
-            node.user {
-                size: 25px;
-                fill-color: #6699ff;
-                text-size: 12;
-                text-color: #000000;
-                text-style: bold;
-                text-alignment: center;
-            }
-            node.kol {
-                size: 35px;
-                fill-color: #ff6666;
-                text-size: 14;
-                text-color: #000000;
-                text-style: bold;
-                text-alignment: center;
-            }
-            edge {
-                arrow-size: 5px, 3px;
-                size: 1px;
-            }
-            """;
+    private static final double INITIAL_VIEW_PERCENT = 1.0;
 
     public GraphVisualizer() {
         System.setProperty("org.graphstream.ui", "swing");
         this.visualGraph = new SingleGraph("Twitter Network");
-        this.visualGraph.setAttribute("ui.stylesheet", GRAPH_CSS);
+
+        // Apply styles
+        visualGraph.setAttribute("ui.stylesheet", StyleSheet.DEFAULT_STYLE);
+
+        // Enable high-quality rendering
+        visualGraph.setAttribute("ui.quality");
+        visualGraph.setAttribute("ui.antialias");
     }
 
-    public void display() {
+    public Viewer display() {
+        // Create and configure the layout
+        SpringBox layout = new SpringBox(false);
+        layout.setForce(0.3);
+        layout.setQuality(0.9);
+
+        setupInitialPositions();
+
+        // Display with the configured layout
         Viewer viewer = this.visualGraph.display();
-        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+        viewer.enableAutoLayout(layout);
+
+        // Install zoom and pan handlers
+        View view = viewer.getDefaultView();
+        ZoomHandler.install(viewer, visualGraph);
+        PanHandler.install(view);  // Add this line
+
+        viewer.getDefaultView().getCamera().setViewPercent(INITIAL_VIEW_PERCENT);
+
+        return viewer;
+    }
+
+    private void setupInitialPositions() {
+        int nodeCount = visualGraph.getNodeCount();
+        if (nodeCount == 0) return;
+
+        // Calculate optimal spacing based on golden ratio
+        double phi = (1 + Math.sqrt(5)) / 2;
+        double goldenAngle = 2 * Math.PI * (1 - 1/phi);
+
+        // Position nodes in a spiral pattern
+        int i = 0;
+        for (Node node : visualGraph) {
+            double radius = 50 * Math.sqrt(i + 1);
+            double theta = i * goldenAngle;
+
+            double x = radius * Math.cos(theta);
+            double y = radius * Math.sin(theta);
+
+            node.setAttribute("xyz", x, y, 0);
+
+            // Only freeze KOL positions
+            if ("kol".equals(node.getAttribute("ui.class"))) {
+                node.setAttribute("layout.frozen");
+            }
+
+            i++;
+        }
     }
 
     public Graph getVisualGraph() {
