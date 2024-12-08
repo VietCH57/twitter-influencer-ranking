@@ -14,7 +14,7 @@ import java.util.List;
 public class MainCrawl {
     public MainCrawl(){};
 
-    public void ControlMainCrawl () {
+    public void ControlMainCrawl (String filePath1, String filePath2) {
         //Duong dan toi GeckoDriver
         System.setProperty("webdriver.gecko.driver", "D:\\Project OOP\\Gecko\\geckodriver.exe");
         //Cau hinh cho Firefox
@@ -28,12 +28,12 @@ public class MainCrawl {
         //Khoi tao doi tuong cua lop XScraper de quan ly qua trinh crawl du lieu
         XScraper scraper = new XScraper();
         //Khoi tao doi tuong cua lop ExcelFileWriter de quan ly qua trinh ghi du lieu ra file
-        ExcelFileWriter excelWriter = new ExcelFileWriter();
+        ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
         //Khoi tao doi tuong cua lop Scoller de quan ly cuon trang
         Scoller sc = new Scoller();
         //Khoi tao doi tuong cua lop ReadKeyWord de quan ly qua trinh doc tu khoa
         ReadKeyWord rkw = new ReadKeyWord();
-        rkw.setfilePath("C:\\Users\\Admin\\IdeaProjects\\twitter-influencer-ranking\\twitter-influencer-ranking\\src\\main\\java\\CrawlData\\keyWordSearch.txt");
+        rkw.setfilePath(filePath1);
         rkw.setLinks();
         rkw.getLinksSize();
         //Khoi tao doi tuong cua lop XLoginAndClose de quan ly dang nhap va dong
@@ -62,17 +62,16 @@ public class MainCrawl {
                     Thread.sleep(5000);
                     List<WebElement> tweets = new ArrayList<>(scraper.Tweet(driver));
                     scraper.User(tweets, driver, excelWriter);
-                    excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
+                    excelWriter.saveToFile();
                     sc.scoller(6000, driver);
                 }
-                excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
             } catch (TimeoutException e) {
                 System.out.println("Hanh dong bi qua thoi gian:" + e.getMessage());
-                excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
+                excelWriter.saveToFile();
                 continue;
             } catch (Exception e) {
                 e.printStackTrace();
-                excelWriter.saveToFile("D:\\Documents D\\TestCrawlData.xlsx");
+                excelWriter.saveToFile();
                 continue;
             }
         }
