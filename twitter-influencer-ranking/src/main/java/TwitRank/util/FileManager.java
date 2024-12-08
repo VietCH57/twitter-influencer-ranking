@@ -38,22 +38,15 @@ public class FileManager {
         int kolCount = 0;
 
         for (Map.Entry<Node, Double> entry : sortedScores) {
-            if (entry.getKey() instanceof User user) {
-                boolean isKoL = user.getFollowerCount() >= KoL.getMinFollowerCount() &&
-                        user.getReacts() >= KoL.getMinReacts() &&
-                        user.getComments() >= KoL.getMinComments() &&
-                        user.getReposts() >= KoL.getMinReposts();
-
-                if (isKoL) {
-                    Row row = sheet.createRow(rowNum++);
-                    row.createCell(0).setCellValue(rank++);
-                    row.createCell(1).setCellValue(user.getId());
-                    row.createCell(2).setCellValue(user.getName());
-                    row.createCell(3).setCellValue(user.getUsername());
-                    row.createCell(4).setCellValue(user.getFollowerCount());
-                    row.createCell(5).setCellValue(entry.getValue());
-                    kolCount++;
-                }
+            if (entry.getKey() instanceof KoL kol) {  // Using pattern matching for instanceof
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(rank++);
+                row.createCell(1).setCellValue(kol.getId());
+                row.createCell(2).setCellValue(kol.getName());
+                row.createCell(3).setCellValue(kol.getUsername());
+                row.createCell(4).setCellValue(kol.getFollowerCount());
+                row.createCell(5).setCellValue(entry.getValue());
+                kolCount++;
             }
         }
         return kolCount;
