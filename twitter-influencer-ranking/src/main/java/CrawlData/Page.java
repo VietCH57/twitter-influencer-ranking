@@ -96,7 +96,7 @@ public class Page {
     public void FixComment (){
         if(!userLists.get("Comment").isEmpty()){
             userLists.get("Comment").removeFirst();
-            System.out.println("Đã xóa phần tử đầu tiên");
+            //System.out.println("Đã xóa phần tử đầu tiên");
         }
     }
 

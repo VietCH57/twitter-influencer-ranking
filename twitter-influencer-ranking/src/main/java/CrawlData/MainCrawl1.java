@@ -7,7 +7,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.*;
 
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,7 @@ public class MainCrawl1 {
 
     public MainCrawl1 () {}
 
-    public void ControlMainCrawl (String filePath1, String filePath2){
+    public void ControlMainCrawl (String filePath1, String filePath2, ExcelFileWriter excelWriter) {
         //Duong dan toi GeckoDriver
         System.setProperty("webdriver.gecko.driver", "D:\\Project OOP\\Gecko\\geckodriver.exe");
         //Cau hinh cho Firefox
@@ -30,7 +29,7 @@ public class MainCrawl1 {
         //Khoi tao doi tuong cua lop XScraper de quan ly qua trinh crawl du lieu
         XScraper scraper = new XScraper();
         //Khoi tao doi tuong cua lop ExcelFileWriter de quan ly qua trinh ghi du lieu ra file
-        ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
+        //ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
         //Khoi tao doi tuong cua lop ReadUserName de quan ly qua trinh doc tu khoa
         ReadUserName run = new ReadUserName();
         run.setfilePath(filePath1);
@@ -42,7 +41,7 @@ public class MainCrawl1 {
             //Mo trinh duyet va dang nhap
             try {
                 lg.loginAction(driver);
-                Thread.sleep(30000);
+                Thread.sleep(40000);
             } catch (Exception e){
                 System.out.println("Co loi trong dang nhap o ham Main");
             }
@@ -62,7 +61,7 @@ public class MainCrawl1 {
                 WebElement Tweet = scraper.FilterTweet(driver, Tweets, link);
                 Thread.sleep(3000);
                 if (scraper.checkToContinue(driver, Tweet)){
-                    return;
+                    continue;
                 }
                 scraper.scrapeUser(driver, Tweet, excelWriter);
                 excelWriter.saveToFile();
@@ -79,6 +78,5 @@ public class MainCrawl1 {
             }
         }
         lg.closeBrowser(driver);
-        excelWriter.close();
     }
 }

@@ -6,7 +6,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 public class MainCrawl {
     public MainCrawl(){};
 
-    public void ControlMainCrawl (String filePath1, String filePath2) {
+    public void ControlMainCrawl (String filePath1, String filePath2, ExcelFileWriter excelWriter) {
         //Duong dan toi GeckoDriver
         System.setProperty("webdriver.gecko.driver", "D:\\Project OOP\\Gecko\\geckodriver.exe");
         //Cau hinh cho Firefox
@@ -28,7 +27,7 @@ public class MainCrawl {
         //Khoi tao doi tuong cua lop XScraper de quan ly qua trinh crawl du lieu
         XScraper scraper = new XScraper();
         //Khoi tao doi tuong cua lop ExcelFileWriter de quan ly qua trinh ghi du lieu ra file
-        ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
+        //ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
         //Khoi tao doi tuong cua lop Scoller de quan ly cuon trang
         Scoller sc = new Scoller();
         //Khoi tao doi tuong cua lop ReadKeyWord de quan ly qua trinh doc tu khoa
@@ -76,6 +75,5 @@ public class MainCrawl {
             }
         }
         lg.closeBrowser(driver);
-        excelWriter.close();
     }
 }
