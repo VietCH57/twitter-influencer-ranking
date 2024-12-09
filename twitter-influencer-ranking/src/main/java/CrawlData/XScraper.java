@@ -6,18 +6,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class XScraper {
 
     private List<String> detectNames = new ArrayList<>();
     private String nameIndex = ".//div[2]/div[1]/div/div[1]/div/div/div[1]/div/a/div/div[1]/span/span";
-    private String userNameIndex = ".//div[2]/div[1]/div[1]/div[1]/div/div/div[2]/div/div[1]";
+    private String userNameIndex = ".//div[2]/div[1]/div[1]/div[1]/div/div/div[2]/div/div[1]/a/div/span";
     private String linkPageIndex = ".//div[2]/div[1]/div/div[1]/div/div/div[1]/div/a";
     private String linkTweetIndex = ".//div[2]/div[1]/div/div[1]/div/div/div[2]/div/div[3]/a";
-    private String numOfViewInHotTweetIndex = ".//div[2]/div[4]/div/div/div[4]/a/div/div[2]";
-    private String numOfReactInHotTweetIndex = ".//div[2]/div[4]/div/div/div[3]/button/div/div[2]";
-    private String numOfCommentInHotTweetIndex = ".//div[2]/div[4]/div/div/div[1]/button/div/div[2]";
-    private String numOfRepostInHotTweetIndex = ".//div[2]/div[4]/div/div/div[2]/button/div/div[2]";
+    private String numOfViewInHotTweetIndex = ".//div[2]/div/div/div/div[4]/a/div/div[2]/span/span/span";
+    private String numOfReactInHotTweetIndex = ".//div[2]/div/div/div/div[3]/button/div/div[2]";
+    private String numOfCommentInHotTweetIndex = ".//div[2]/div/div/div/div[1]/button/div/div[2]";
+    private String numOfRepostInHotTweetIndex = ".//div[2]/div/div/div/div[2]/button/div/div[2]";
     private String numOfFollowingIndex1 = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[6]/div[1]/a/span[1]";
     private String numOfFollowingIndex2 = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[5]/div[1]/a/span[1]";
     private String numOfFollowerIndex1 = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[6]/div[2]/a/span[1]";
@@ -217,7 +216,7 @@ public class XScraper {
         } catch (Exception e) {
             System.out.println("Loi khi lay danh sach Repost: " + e.getMessage());
         }
-        System.out.println("So userrepost lay duoc la: " + userretweetdetects.size());
+        //System.out.println("So userrepost lay duoc la: " + userretweetdetects.size());
     }
 
     public void crawlUserNameComment (WebDriver driver, Page page, String listType){
@@ -258,7 +257,7 @@ public class XScraper {
         } catch (Exception e) {
             System.out.println("Loi khi lay danh sach Comment: " + e.getMessage());
         }
-        System.out.println("So usercomment lay duoc la: " + (usercommentdetects.size() - 1));
+        //System.out.println("So usercomment lay duoc la: " + (usercommentdetects.size() - 1));
     }
 
     public void crawlUserNameFollowingFollowers(WebDriver driver, Page page, String listType){
