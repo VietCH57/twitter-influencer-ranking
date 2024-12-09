@@ -29,7 +29,7 @@ public class PageRankExecutor {
 
         System.out.println("Successfully loaded graph data. Computing PageRank scores...");
 
-        PageRank pageRank = new PageRank(graph, 0.85, 100);
+        PageRank pageRank = new PageRank(graph, 0.85, 100, 1e-6);
         Map<Node, Double> pageRankScores = pageRank.computePageRank();
 
         List<Map.Entry<Node, Double>> sortedScores = new ArrayList<>(pageRankScores.entrySet());

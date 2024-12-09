@@ -7,11 +7,11 @@ public class StyleSheet {
     }
 
     // Define color components for reuse
-    private static final int[] USER_NODE_RGB = {79, 136, 176};      // Steel blue
-    private static final int[] KOL_NODE_RGB = {212, 99, 99};        // Coral red
-    private static final int[] FOLLOW_EDGE_RGB = {67, 160, 71};     // Forest green
-    private static final int[] REPOST_EDGE_RGB = {124, 77, 255};    // Royal purple
-    private static final int[] COMMENT_EDGE_RGB = {255, 111, 0};    // Tangerine orange
+    private static final int[] USER_NODE_RGB = {79, 136, 176};
+    private static final int[] KOL_NODE_RGB = {212, 99, 99};
+    private static final int[] FOLLOW_EDGE_RGB = {67, 160, 71};
+    private static final int[] REPOST_EDGE_RGB = {124, 77, 255};
+    private static final int[] COMMENT_EDGE_RGB = {255, 111, 0};
 
     // Public color constants with RGB values for reference
     public static final String USER_NODE_COLOR = rgb(USER_NODE_RGB[0], USER_NODE_RGB[1], USER_NODE_RGB[2]);
@@ -23,13 +23,13 @@ public class StyleSheet {
     public static final String DEFAULT_STYLE =
             "graph {" +
                     "    padding: 50px;" +
-                    "    fill-color: rgb(252, 252, 252);" +     // Slightly off-white background
+                    "    fill-color: rgb(252, 252, 252);" +
                     "}" +
                     "node {" +
                     "    size: 25px;" +
                     "    fill-color: " + USER_NODE_COLOR + ";" +
                     "    text-size: 12;" +
-                    "    text-color: rgb(68, 68, 68);" +        // Dark gray text
+                    "    text-color: rgb(68, 68, 68);" +
                     "    text-style: bold;" +
                     "    text-alignment: center;" +
                     "    text-background-mode: rounded-box;" +
@@ -39,7 +39,7 @@ public class StyleSheet {
                     "    z-index: 1;" +
                     "    fill-mode: plain;" +
                     "    stroke-mode: plain;" +
-                    "    stroke-color: rgb(90, 90, 90);" +      // Medium gray border
+                    "    stroke-color: rgb(90, 90, 90);" +
                     "    stroke-width: 1px;" +
                     "}" +
                     "node.user {" +

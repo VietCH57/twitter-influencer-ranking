@@ -21,14 +21,14 @@ public class DataCleaner {
              Workbook outputWorkbook = new XSSFWorkbook()) {
 
             // STEP 1: Clean User sheet - remove duplicates
-            System.out.println("\nSTEP 1: Removing duplicate users");
+            System.out.println("\nRemoving duplicate users");
             Sheet userSheet = inputWorkbook.getSheet("User");
             Map<String, List<UserEntry>> duplicateUsers = findDuplicateUsers(userSheet);
             Map<String, String> idMappings = createIdMappings(duplicateUsers);
             Set<String> validUserIds = cleanUserSheetDuplicates(userSheet, outputWorkbook, duplicateUsers);
 
             // STEP 2: Clean interaction sheets - remove invalid users and update IDs
-            System.out.println("\nSTEP 2: Cleaning interaction sheets");
+            System.out.println("\nCleaning interaction sheets");
             for (String sheetName : INTERACTION_SHEETS) {
                 Sheet inputSheet = inputWorkbook.getSheet(sheetName);
                 if (inputSheet != null) {
@@ -37,12 +37,12 @@ public class DataCleaner {
             }
 
             // STEP 3: Find connected users after cleaning interactions
-            System.out.println("\nSTEP 3: Identifying connected users");
+            System.out.println("\nIdentifying connected users");
             Set<String> connectedUserIds = findConnectedUsers(outputWorkbook);
             System.out.println("Found " + connectedUserIds.size() + " connected users");
 
             // STEP 4: Remove isolated users
-            System.out.println("\nSTEP 4: Removing isolated users");
+            System.out.println("\nRemoving isolated users");
             cleanUserSheetIsolated(outputWorkbook.getSheet("User"), connectedUserIds);
 
             // Save the final cleaned data
