@@ -2,7 +2,6 @@ package Visualizer;
 
 import TwitRank.graph.Graph;
 import TwitRank.graph.GraphLoader;
-import org.graphstream.ui.swing.SwingGraphRenderer;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.Viewer.CloseFramePolicy;
 import org.graphstream.ui.view.View;
