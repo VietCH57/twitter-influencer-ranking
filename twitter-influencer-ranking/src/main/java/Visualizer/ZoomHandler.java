@@ -12,7 +12,7 @@ public class ZoomHandler implements MouseWheelListener {
     private final View view;
     private final Camera camera;
     private final Graph graph;
-    public static final double MIN_ZOOM = 0.01;
+    public static final double MIN_ZOOM = 0.001;
     public static final double MAX_ZOOM = 10.0;
     public static final double LABEL_VISIBILITY_THRESHOLD = 0.075;
     public static final double ZOOM_SENSITIVITY = 0.15;
