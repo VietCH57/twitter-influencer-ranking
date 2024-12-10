@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="gs-algo-2.0">
+    <CLASSES>
+      <root url="jar://D:/Project OOP/Graph Stream/gs-algo-2.0.jar!/" />
+      <root url="jar://D:/Project OOP/Graph Stream/gs-core-2.0.jar!/" />
+      <root url="jar://D:/Project OOP/Graph Stream/gs-ui-swing-2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://D:/Project OOP/Graph Stream/gs-ui-swing-2.0.jar!/" />
+    </SOURCES>
+  </library>
+</component>
