@@ -5,15 +5,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.*;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainCrawl1 {
-
-    public MainCrawl1 () {}
+public class OriginCrawl {
+    public OriginCrawl(){};
 
     public void ControlMainCrawl (String filePath1, String filePath2, ExcelFileWriter excelWriter) {
         //Duong dan toi GeckoDriver
@@ -30,49 +28,48 @@ public class MainCrawl1 {
         XScraper scraper = new XScraper();
         //Khoi tao doi tuong cua lop ExcelFileWriter de quan ly qua trinh ghi du lieu ra file
         //ExcelFileWriter excelWriter = new ExcelFileWriter(filePath2);
-        //Khoi tao doi tuong cua lop ReadUserName de quan ly qua trinh doc tu khoa
-        ReadUserName run = new ReadUserName();
-        run.setfilePath(filePath1);
-        run.setLinks();
-        run.getLinksSize();
+        //Khoi tao doi tuong cua lop Scoller de quan ly cuon trang
+        Scoller sc = new Scoller();
+        //Khoi tao doi tuong cua lop ReadKeyWord de quan ly qua trinh doc tu khoa
+        ReadKeyWord rkw = new ReadKeyWord();
+        rkw.setfilePath(filePath1);
+        rkw.setLinks();
+        rkw.getLinksSize();
         //Khoi tao doi tuong cua lop XLoginAndClose de quan ly dang nhap va dong
         XLoginAndClose lg = new XLoginAndClose();
         do { //Neu nhu dang nhap that bai thi dong trinh duyet roi mo lai de dang nhap
             //Mo trinh duyet va dang nhap
             try {
                 lg.loginAction(driver);
-                Thread.sleep(40000);
+                Thread.sleep(25000);
             } catch (Exception e){
                 System.out.println("Co loi trong dang nhap o ham Main");
             }
             //Kiem tra trang thai dang nhap
         } while (!lg.checkLoginStatus(driver));
         //Khoi tao danh sach tim kiem
-        List<String> links = new ArrayList<>(run.getLinks());
+        List<String> links = new ArrayList<>(rkw.getLinks());
 
-        //Tim kiem user
+        //Tim kiem tu khoa
         for (String link : links) {
             try{
                 driver.navigate().to(link);
                 //Doi ket qua hien thi
                 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-                Thread.sleep(5000);
-                List<WebElement> Tweets = driver.findElements(By.xpath("//section/div/div/div/div/div/article/div/div/div[2]"));
-                WebElement Tweet = scraper.FilterTweet(driver, Tweets, link);
-                Thread.sleep(3000);
-                if (scraper.checkToContinue(driver, Tweet)){
-                    continue;
+                //Lay danh sach Tweet va duyet Tweet
+                for (int i = 1; i <= 2; i++){
+                    Thread.sleep(5000);
+                    List<WebElement> tweets = new ArrayList<>(scraper.Tweet(driver));
+                    scraper.User(tweets, driver, excelWriter);
+                    excelWriter.saveToFile();
+                    sc.scoller(6000, driver);
                 }
-                scraper.scrapeUser(driver, Tweet, excelWriter);
-                excelWriter.saveToFile();
             } catch (TimeoutException e) {
                 System.out.println("Hanh dong bi qua thoi gian:" + e.getMessage());
                 excelWriter.saveToFile();
                 continue;
-            } catch (NoSuchElementException e){
-                continue;
             } catch (Exception e) {
-                e.getMessage();
+                e.printStackTrace();
                 excelWriter.saveToFile();
                 continue;
             }

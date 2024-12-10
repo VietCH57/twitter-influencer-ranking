@@ -18,7 +18,7 @@ public class CrawlTask1 implements Runnable{
     @Override
     public void run() {
         try {
-            MainCrawl1 mainCrawl = new MainCrawl1();
+            ReCrawl mainCrawl = new ReCrawl();
             mainCrawl.ControlMainCrawl(filePath1, filePath2, excelFileWriter);
         } catch (Exception e) {
             e.printStackTrace();

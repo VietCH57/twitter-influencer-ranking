@@ -12,15 +12,13 @@ public class XScraper {
     private String nameIndex = ".//div[2]/div[1]/div/div[1]/div/div/div[1]/div/a/div/div[1]/span/span";
     private String userNameIndex = ".//div[2]/div[1]/div[1]/div[1]/div/div/div[2]/div/div[1]/a/div/span";
     private String linkPageIndex = ".//div[2]/div[1]/div/div[1]/div/div/div[1]/div/a";
-    private String linkTweetIndex = ".//div[2]/div[1]/div/div[1]/div/div/div[2]/div/div[3]/a";
+    private String linkTweetIndex = ".//div[2]/div[1]/div/div[1]/div/div/div/div/div[3]/a";
     private String numOfViewInHotTweetIndex = ".//div[2]/div/div/div/div[4]/a/div/div[2]/span/span/span";
     private String numOfReactInHotTweetIndex = ".//div[2]/div/div/div/div[3]/button/div/div[2]";
     private String numOfCommentInHotTweetIndex = ".//div[2]/div/div/div/div[1]/button/div/div[2]";
     private String numOfRepostInHotTweetIndex = ".//div[2]/div/div/div/div[2]/button/div/div[2]";
-    private String numOfFollowingIndex1 = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[6]/div[1]/a/span[1]";
-    private String numOfFollowingIndex2 = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/div/div/div[5]/div[1]/a/span[1]";
-    private String numOfFollowerIndex1 = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[6]/div[2]/a/span[1]";
-    private String numOfFollowerIndex2 = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[5]/div[2]/a/span[1]";
+    private String numOfFollowingIndex = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div/div[1]/a/span[1]/span";
+    private String numOfFollowerIndex = "/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div/div[2]/a/span[1]/span";
 
     private List<String> scraper1Index = Arrays.asList(nameIndex, userNameIndex, numOfViewInHotTweetIndex, numOfReactInHotTweetIndex, numOfCommentInHotTweetIndex, numOfRepostInHotTweetIndex);
     private List<String> scraper2Index = Arrays.asList(linkPageIndex, linkTweetIndex);
@@ -82,8 +80,8 @@ public class XScraper {
 
             tm.newTab(driver, linkpage);
             tm.switchTab(driver);
-            String numoffollowing = scraper1(numOfFollowingIndex1, numOfFollowingIndex2, driver);
-            String numoffollower = scraper1(numOfFollowerIndex1, numOfFollowerIndex2, driver);
+            String numoffollowing = scraper1(numOfFollowingIndex, driver);
+            String numoffollower = scraper1(numOfFollowerIndex, driver);
 
             System.out.println(linkpage);
 
@@ -138,21 +136,17 @@ public class XScraper {
         }
     }
     //Phuong thuc lay name va num
-    public String scraper1 (String xPath1, String xPath2, WebDriver driver){
+    public String scraper1 (String xPath, WebDriver driver){
         try {
-            WebElement M = driver.findElement(By.xpath(xPath1));
+            WebElement M = driver.findElement(By.xpath(xPath));
             String m = M.getText();
-            if (m.equals("")){
+            if (m.equals("")) {
                 m = "0";
             }
             return m;
-        } catch (NoSuchElementException e) {
-            WebElement M = driver.findElement(By.xpath(xPath2));
-            String m = M.getText();
-            if (m.equals("")){
-                m = "0";
-            }
-            return m;
+        } catch (NoSuchElementException e){
+            System.out.println("Loi khong tim thay phan tu o scraper1: " + e.getMessage());
+            return "";
         } catch (TimeoutException e){
             System.out.println("Loi do bi treo khi thuc hien scraper1: " + e.getMessage());
             return "";
