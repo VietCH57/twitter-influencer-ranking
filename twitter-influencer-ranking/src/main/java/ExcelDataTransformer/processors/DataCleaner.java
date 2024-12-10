@@ -42,7 +42,7 @@ public class DataCleaner {
             System.out.println("Found " + connectedUserIds.size() + " connected users");
 
             // STEP 4: Remove isolated users
-            System.out.println("\nzRemoving isolated users");
+            System.out.println("\nRemoving isolated users");
             cleanUserSheetIsolated(outputWorkbook.getSheet("User"), connectedUserIds);
 
             // Save the final cleaned data
