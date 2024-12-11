@@ -32,13 +32,4 @@ public class ExcelUtils {
             }
         }
     }
-
-    public static String getCellValueAsString(Cell cell) {
-        if (cell == null) return null;
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue().trim();
-            case NUMERIC -> String.valueOf((long)cell.getNumericCellValue());
-            default -> null;
-        };
-    }
 }
