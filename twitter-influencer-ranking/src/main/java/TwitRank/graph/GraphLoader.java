@@ -56,8 +56,6 @@ public class GraphLoader {
                         ". Error: " + e.getMessage());
             }
         }
-
-        System.out.println("Loaded " + rowCount + " users");
     }
 
     private void loadEdges(Sheet sheet, Graph graph, EdgeType edgeType, boolean reverseDirection) {
@@ -111,8 +109,6 @@ public class GraphLoader {
                 skippedCount++;
             }
         }
-
-        System.out.println("Loaded " + relationCount + " " + edgeType + " relationships");
     }
 
     private User createUserFromRow(Row row) {

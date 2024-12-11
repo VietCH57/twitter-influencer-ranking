@@ -7,12 +7,11 @@ import java.util.*;
 
 public class TopTargetUsersSelector {
     private static final String INPUT_FILE = "filtered_data.xlsx";
-    private static final String OUTPUT_FILE = "top_300_targets.xlsx";
+    private static final String OUTPUT_FILE = "top_300_targets_in_comment.xlsx";
     private static final int TOP_USERS_COUNT = 300;
-    private static final String[] INTERACTION_SHEETS = {
-            "User Follower", "User Following", "User Repost", "User Comment"
+    private static final String[] INTERACTION_SHEETS = { "User Comment"
     };
-
+//           "User Follower", "User Following", "User Repost", "User Comment"
     public void selectTopTargetUsers() {
         System.out.println("Starting top target users selection...");
         try (FileInputStream fis = new FileInputStream(INPUT_FILE);

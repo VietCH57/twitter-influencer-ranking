@@ -42,7 +42,7 @@ public class PanHandler implements MouseListener, MouseMotionListener, MouseMana
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (SwingUtilities.isMiddleMouseButton(e)) {
+        if (SwingUtilities.isLeftMouseButton(e)) {  // Changed from isMiddleMouseButton
             isPanning = true;
             lastMousePosition = camera.transformPxToGu(e.getX(), e.getY());
             panel.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
@@ -52,7 +52,7 @@ public class PanHandler implements MouseListener, MouseMotionListener, MouseMana
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (SwingUtilities.isMiddleMouseButton(e)) {
+        if (SwingUtilities.isLeftMouseButton(e)) {  // Changed from isMiddleMouseButton
             isPanning = false;
             panel.setCursor(Cursor.getDefaultCursor());
             e.consume();
