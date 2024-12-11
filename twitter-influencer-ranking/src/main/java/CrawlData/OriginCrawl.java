@@ -15,13 +15,13 @@ public class OriginCrawl {
 
     public void ControlMainCrawl (String filePath1, String filePath2, ExcelFileWriter excelWriter) {
         //Duong dan toi GeckoDriver
-        System.setProperty("webdriver.gecko.driver", "D:\\Project OOP\\Gecko\\geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", "D:\\OOPproject_BlockchainKOLs_Crawl_Pagerank\\CrawlData\\geckodriver-v0.35.0-win32\\geckodriver.exe");
         //Cau hinh cho Firefox
         FirefoxOptions options = new FirefoxOptions();
         options.addPreference("dom.webdriver.enabled", false); // Ẩn navigator.webdriver
         options.addPreference("general.useragent.override",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0");
-        options.setBinary("C:\\Users\\Admin\\AppData\\Local\\Mozilla Firefox\\firefox.exe");
+        options.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe");
         //Khoi tao WebDriver
         WebDriver driver = new FirefoxDriver(options);
         //Khoi tao doi tuong cua lop XScraper de quan ly qua trinh crawl du lieu

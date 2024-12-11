@@ -143,13 +143,12 @@ public class GraphLoader {
         }
     }
 
-    private boolean meetsKoLCriteria(int followerCount, int reacts, int comments, int reposts) {
+    public static boolean meetsKoLCriteria(int followerCount, int reacts, int comments, int reposts) {
         return followerCount >= KoL.getMinFollowerCount() &&
                 reacts >= KoL.getMinReacts() &&
                 comments >= KoL.getMinComments() &&
                 reposts >= KoL.getMinReposts();
     }
-
 
     private String getStringCellValue(Cell cell) {
         if (cell == null) return "";
