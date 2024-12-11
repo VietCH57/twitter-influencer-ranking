@@ -2,27 +2,34 @@ package ExcelDataTransformer.processors;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.io.*;
 import java.util.*;
 
 public class TopTargetUsersSelector {
     private static final String INPUT_FILE = "filtered_data.xlsx";
-    private static final String OUTPUT_FILE = "top_300_targets_in_comment.xlsx";
-    private static final int TOP_USERS_COUNT = 300;
-    private static final String[] INTERACTION_SHEETS = { "User Comment"
-    };
-//           "User Follower", "User Following", "User Repost", "User Comment"
-    public void selectTopTargetUsers() {
-        System.out.println("Starting top target users selection...");
+    private static final String EXCLUDE_FILE = "top_300_targets_in_comment.xlsx";
+    private static final String OUTPUT_FILE = "top_400_targets_in_comment.xlsx";
+    private static final int TOP_USERS_COUNT = 400;
+    private static final String[] INTERACTION_SHEETS = { "User Comment" };
+
+    public void selectTopTargetUsersExcluding() {
+        System.out.println("Starting top target users selection with exclusion...");
         try (FileInputStream fis = new FileInputStream(INPUT_FILE);
-             Workbook inputWorkbook = new XSSFWorkbook(fis)) {
+             Workbook inputWorkbook = new XSSFWorkbook(fis);
+             FileInputStream excludeFis = new FileInputStream(EXCLUDE_FILE);
+             Workbook excludeWorkbook = new XSSFWorkbook(excludeFis)) {
+
+            // Set to store usernames to be excluded
+            Set<String> excludeUsers = new HashSet<>();
+            loadExcludeUsers(excludeWorkbook, excludeUsers);
 
             // Map to store username and their frequency count
             Map<String, Integer> userFrequencyMap = new HashMap<>();
 
             // Process each interaction sheet
             for (String sheetName : INTERACTION_SHEETS) {
-                processInteractionSheet(inputWorkbook.getSheet(sheetName), userFrequencyMap);
+                processInteractionSheet(inputWorkbook.getSheet(sheetName), userFrequencyMap, excludeUsers);
             }
 
             // Sort users by frequency and get top 300
@@ -41,7 +48,27 @@ public class TopTargetUsersSelector {
         }
     }
 
-    private void processInteractionSheet(Sheet sheet, Map<String, Integer> userFrequencyMap) {
+    private void loadExcludeUsers(Workbook excludeWorkbook, Set<String> excludeUsers) {
+        Sheet sheet = excludeWorkbook.getSheetAt(0); // Assuming first sheet contains the usernames
+        if (sheet == null) return;
+
+        System.out.println("Loading users to exclude...");
+
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) { // Skip header row
+            Row row = sheet.getRow(i);
+            if (row == null) continue;
+
+            Cell usernameCell = row.getCell(0); // Assuming usernames are in the first column
+            if (usernameCell != null) {
+                String username = getCellValueAsString(usernameCell);
+                if (username != null && !username.trim().isEmpty()) {
+                    excludeUsers.add(username.trim());
+                }
+            }
+        }
+    }
+
+    private void processInteractionSheet(Sheet sheet, Map<String, Integer> userFrequencyMap, Set<String> excludeUsers) {
         if (sheet == null) return;
 
         System.out.println("Processing " + sheet.getSheetName() + "...");
@@ -55,7 +82,7 @@ public class TopTargetUsersSelector {
             Cell targetUserCell = row.getCell(2);
             if (targetUserCell != null) {
                 String targetUsername = getCellValueAsString(targetUserCell);
-                if (targetUsername != null && !targetUsername.trim().isEmpty()) {
+                if (targetUsername != null && !targetUsername.trim().isEmpty() && !excludeUsers.contains(targetUsername)) {
                     // Increment frequency count
                     userFrequencyMap.merge(targetUsername, 1, Integer::sum);
                 }
@@ -135,13 +162,13 @@ public class TopTargetUsersSelector {
             case STRING:
                 return cell.getStringCellValue().trim();
             case NUMERIC:
-                return String.valueOf((long)cell.getNumericCellValue());
+                return String.valueOf((long) cell.getNumericCellValue());
             default:
                 return null;
         }
     }
 
     public static void main(String[] args) {
-        new TopTargetUsersSelector().selectTopTargetUsers();
+        new TopTargetUsersSelector().selectTopTargetUsersExcluding();
     }
 }
