@@ -13,6 +13,15 @@ import java.util.*;
 
 public class GraphLoader {
 
+    private double calculateEdgeWeight(EdgeType edgeType) {
+        return switch (edgeType) {
+            case FOLLOW -> 1.0;
+            case RETWEET -> 3.0;
+            case REPLY -> 2.0;
+            default -> 1.0;
+        };
+    }
+
     public Graph loadGraphFromExcel(File inputFile) {
         Graph graph = new Graph();
         System.out.println("Loading graph from: " + inputFile.getAbsolutePath());
@@ -192,14 +201,5 @@ public class GraphLoader {
 
     private Node findNodeById(Graph graph, int id) {
         return graph.getNodeById(id);
-    }
-
-    private double calculateEdgeWeight(EdgeType edgeType) {
-        return switch (edgeType) {
-            case FOLLOW -> 1.0;
-            case RETWEET -> 2.0;
-            case REPLY -> 3.0;
-            default -> 1.0;
-        };
     }
 }
