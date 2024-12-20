@@ -9,7 +9,7 @@ public abstract class BaseScene extends Scene {
     protected VBox buttonContainer;
 
     public BaseScene(VBox buttonContainer) {
-        super(new BorderPane(), 1024, 768);
+        super(new BorderPane(), 900, 600);
         this.buttonContainer = buttonContainer;
         this.layout = (BorderPane) getRoot();
         this.layout.setLeft(buttonContainer);

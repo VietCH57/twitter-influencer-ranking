@@ -3,10 +3,12 @@ package GUI.scene;
 import CrawlData.RunMainCrawl;
 import GUI.handler.*;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.io.File;
 
@@ -38,12 +40,18 @@ public class CrawlScene extends BaseScene {
         crawlButton.setOnAction(e -> startCrawling());
 
         // Status label
-        label_crawl = new Label(); label_crawl.setManaged(false);
-        label_transform = new Label(); label_transform.setManaged(false);
-        label_clean = new Label(); label_clean.setManaged(false);
-        label_filter = new Label(); label_filter.setManaged(false);
-        label_select_top_users = new Label(); label_select_top_users.setManaged(false);
-        label_recrawl = new Label(); label_recrawl.setManaged(false);
+        label_crawl = new Label();
+        label_crawl.setManaged(false);
+        label_transform = new Label();
+        label_transform.setManaged(false);
+        label_clean = new Label();
+        label_clean.setManaged(false);
+        label_filter = new Label();
+        label_filter.setManaged(false);
+        label_select_top_users = new Label();
+        label_select_top_users.setManaged(false);
+        label_recrawl = new Label();
+        label_recrawl.setManaged(false);
 
         // Transform crawl data file button
         Button transformDataButton = new Button("Transform Data File");
@@ -105,55 +113,81 @@ public class CrawlScene extends BaseScene {
         }
         String outputFile = selectedExcelFile.toString();
 
-        switch (numThreads) {
-            case 1:
-                // Select single text input file
-                TxtFileSelector txtFileSelector = new TxtFileSelector();
-                File selectedTxtFile = txtFileSelector.selectInputFile();
-                if (selectedTxtFile == null) {
-                    label_crawl.setText("No text file selected.");
-                    return;
+        // Show WaitingScene
+        WaitingScene waitingScene = new WaitingScene(this::stopCrawling);
+        Stage stage = (Stage) layout.getScene().getWindow();
+        stage.setScene(new Scene(waitingScene.getWaitingContent(), 900,600));
+
+        // Start crawling (in a separate thread to avoid blocking the UI)
+        new Thread(() -> {
+            try {
+                switch (numThreads) {
+                    case 1:
+                        // Select single text input file
+                        TxtFileSelector txtFileSelector = new TxtFileSelector();
+                        File selectedTxtFile = txtFileSelector.selectInputFile();
+                        if (selectedTxtFile == null) {
+                            updateLabelOnUIThread(label_crawl, "No text file selected.");
+                            return;
+                        }
+                        String keywordFile = selectedTxtFile.toString();
+                        crawler.RunSingleThread(keywordFile, outputFile);
+                        break;
+                    case 2:
+                        // Select two text input files
+                        File selectedTxtFile1 = new TxtFileSelector().selectInputFile();
+                        File selectedTxtFile2 = new TxtFileSelector().selectInputFile();
+                        if (selectedTxtFile1 == null || selectedTxtFile2 == null) {
+                            updateLabelOnUIThread(label_crawl, "Two text files must be selected.");
+                            return;
+                        }
+                        crawler.RunMultiThread(selectedTxtFile1.toString(), selectedTxtFile2.toString(), outputFile);
+                        break;
+                    case 3:
+                        // Select three text input files
+                        File selectedTxtFile3 = new TxtFileSelector().selectInputFile();
+                        File selectedTxtFile4 = new TxtFileSelector().selectInputFile();
+                        File selectedTxtFile5 = new TxtFileSelector().selectInputFile();
+                        if (selectedTxtFile3 == null || selectedTxtFile4 == null || selectedTxtFile5 == null) {
+                            updateLabelOnUIThread(label_crawl, "Three text files must be selected.");
+                            return;
+                        }
+                        crawler.RunMultiThread(selectedTxtFile3.toString(), selectedTxtFile4.toString(), selectedTxtFile5.toString(), outputFile);
+                        break;
+                    case 4:
+                        // Select four text input files
+                        File selectedTxtFile6 = new TxtFileSelector().selectInputFile();
+                        File selectedTxtFile7 = new TxtFileSelector().selectInputFile();
+                        File selectedTxtFile8 = new TxtFileSelector().selectInputFile();
+                        File selectedTxtFile9 = new TxtFileSelector().selectInputFile();
+                        if (selectedTxtFile6 == null || selectedTxtFile7 == null || selectedTxtFile8 == null || selectedTxtFile9 == null) {
+                            updateLabelOnUIThread(label_crawl, "Four text files must be selected.");
+                            return;
+                        }
+                        crawler.RunMultiThread(selectedTxtFile6.toString(), selectedTxtFile7.toString(), selectedTxtFile8.toString(), selectedTxtFile9.toString(), outputFile);
+                        break;
+                    default:
+                        updateLabelOnUIThread(label_crawl, "Invalid number of threads selected.");
+                        return;
                 }
-                String keywordFile = selectedTxtFile.toString();
-                crawler.RunSingleThread(keywordFile, outputFile);
-                break;
-            case 2:
-                // Select two text input files
-                File selectedTxtFile1 = new TxtFileSelector().selectInputFile();
-                File selectedTxtFile2 = new TxtFileSelector().selectInputFile();
-                if (selectedTxtFile1 == null || selectedTxtFile2 == null) {
-                    label_crawl.setText("Two text files must be selected.");
-                    return;
-                }
-                crawler.RunMultiThread(selectedTxtFile1.toString(), selectedTxtFile2.toString(), outputFile);
-                break;
-            case 3:
-                // Select three text input files
-                File selectedTxtFile3 = new TxtFileSelector().selectInputFile();
-                File selectedTxtFile4 = new TxtFileSelector().selectInputFile();
-                File selectedTxtFile5 = new TxtFileSelector().selectInputFile();
-                if (selectedTxtFile3 == null || selectedTxtFile4 == null || selectedTxtFile5 == null) {
-                    label_crawl.setText("Three text files must be selected.");
-                    return;
-                }
-                crawler.RunMultiThread(selectedTxtFile3.toString(), selectedTxtFile4.toString(), selectedTxtFile5.toString(), outputFile);
-                break;
-            case 4:
-                // Select four text input files
-                File selectedTxtFile6 = new TxtFileSelector().selectInputFile();
-                File selectedTxtFile7 = new TxtFileSelector().selectInputFile();
-                File selectedTxtFile8 = new TxtFileSelector().selectInputFile();
-                File selectedTxtFile9 = new TxtFileSelector().selectInputFile();
-                if (selectedTxtFile6 == null || selectedTxtFile7 == null || selectedTxtFile8 == null || selectedTxtFile9 == null) {
-                    label_crawl.setText("Four text files must be selected.");
-                    return;
-                }
-                crawler.RunMultiThread(selectedTxtFile6.toString(), selectedTxtFile7.toString(), selectedTxtFile8.toString(), selectedTxtFile9.toString(), outputFile);
-                break;
-            default:
-                label_crawl.setText("Invalid number of threads selected.");
-                break;
-        }
-        label_crawl.setText("Crawling completed!");
+                updateLabelOnUIThread(label_crawl, "Crawling completed!");
+            } catch (Exception e) {
+                updateLabelOnUIThread(label_crawl, "Error: " + e.getMessage());
+            } finally {
+                // Return to CrawlScene after crawling is finished
+                javafx.application.Platform.runLater(() -> stage.setScene(new Scene(layout)));
+            }
+        }).start();
+    }
+
+    private void stopCrawling() {
+        // Implement logic to stop crawling if possible
+        label_crawl.setText("Crawling stopped.");
+    }
+
+    private void updateLabelOnUIThread(Label label, String text) {
+        javafx.application.Platform.runLater(() -> {
+            label.setText(text);
+        });
     }
 }

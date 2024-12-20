@@ -23,7 +23,7 @@ public class HomeScene extends BaseScene {
 
         Label welcome = new Label("WELCOME!");
         welcome.setPrefSize(350, 107);
-        welcome.setStyle("-fx-text-fill: #33e7ff; -fx-font-size: 70px;");
+        welcome.setStyle("-fx-text-fill: #0F4C81; -fx-font-size: 70px;");
 
         Label label1 = new Label("The software is designed and developed");
         label1.setStyle("-fx-font-size: 15px;");

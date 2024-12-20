@@ -243,5 +243,4 @@ public class RunMainCrawl {
             e.printStackTrace();
         }
     }
-
 }
