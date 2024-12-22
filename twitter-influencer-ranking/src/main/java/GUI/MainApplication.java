@@ -3,13 +3,14 @@ package GUI;
 import GUI.scene.*;
 import GUI.util.ButtonContainer;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class MainApplication extends Application implements ShowingScene {
+public class MainApplication extends Application {
     private Stage primaryStage;
-    private ButtonContainer buttonContainer;
+    private VBox buttonContainer;
 
     public static void main(String[] args) {
         launch(args);
@@ -20,30 +21,30 @@ public class MainApplication extends Application implements ShowingScene {
         this.primaryStage = primaryStage;
         primaryStage.setTitle("Twitter Influencer Ranking");
 
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(10));
+
+        // Create the button container
+        this.buttonContainer = new ButtonContainer(this);
+
         // Create the main container
         BorderPane mainLayout = new BorderPane();
 
-        // Initialize buttonContainer with this (implementing ShowingScene)
-        buttonContainer = new ButtonContainer(this);
-        VBox buttonContainerBox = buttonContainer.getButtonContainerBox();
-        mainLayout.setLeft(buttonContainerBox);
+        // Add the button container to the left side
+        mainLayout.setLeft(buttonContainer);
 
         showHomeScene();
+        primaryStage.setScene(new HomeScene(buttonContainer));  // Set initial scene
         primaryStage.show();
     }
 
-    @Override
-    public void showHomeScene() { primaryStage.setScene(new HomeScene(buttonContainer.getButtonContainerBox())); }
+    public void showHomeScene() { primaryStage.setScene(new HomeScene(buttonContainer)); }
 
-    @Override
-    public void showCrawlScene() { primaryStage.setScene(new CrawlScene(buttonContainer.getButtonContainerBox())); }
+    public void showCrawlScene() { primaryStage.setScene(new CrawlScene(buttonContainer)); }
 
-    @Override
-    public void showProcessorScene() { primaryStage.setScene(new ProcessorScene(buttonContainer.getButtonContainerBox())); }
+    public void showProcessorScene() { primaryStage.setScene(new ProcessorScene(buttonContainer)); }
 
-    @Override
-    public void showRankingScene() { primaryStage.setScene(new GraphAndRankingScene(buttonContainer.getButtonContainerBox())); }
+    public void showRankingScene() { primaryStage.setScene(new GraphAndRankingScene(buttonContainer)); }
 
-    @Override
-    public void showVisualizerScene() { primaryStage.setScene(new VisualizerScene(buttonContainer.getButtonContainerBox())); }
+    public void showVisualizerScene() { primaryStage.setScene(new VisualizerScene(buttonContainer)); }
 }

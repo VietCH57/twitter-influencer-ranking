@@ -1,18 +1,20 @@
 package GUI.util;
 
-import GUI.ShowingScene;
+import GUI.MainApplication;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
-public class ButtonContainer {
-    private VBox buttonContainer;
+public class ButtonContainer extends VBox {
+    private MainApplication mainApp;
 
-    public ButtonContainer(ShowingScene showingScene) {
-        buttonContainer = createButtonContainer(showingScene);
+    public ButtonContainer(MainApplication mainApp) {
+        this.mainApp = mainApp;
+        createButtons();
+        styleButtons();
     }
 
-    private VBox createButtonContainer(ShowingScene showingScene) {
+    private void createButtons() {
         // Create buttons
         Button homeButton = new Button("Homepage");
         Button crawlButton = new Button("Crawl Data");
@@ -20,31 +22,27 @@ public class ButtonContainer {
         Button rankingButton = new Button("Ranking");
         Button visualizerButton = new Button("Graph Visualizer");
 
-        // Style all buttons
-        String buttonStyle = "-fx-font-size: 14px; -fx-min-width: 150px; -fx-min-height: 40px;";
-        homeButton.setStyle(buttonStyle);
-        crawlButton.setStyle(buttonStyle);
-        processorButton.setStyle(buttonStyle);
-        rankingButton.setStyle(buttonStyle);
-        visualizerButton.setStyle(buttonStyle);
-
-        // Create container
-        VBox buttonContainer = new VBox(10);
-        buttonContainer.setPadding(new Insets(15));
-        buttonContainer.setStyle("-fx-background-color: #f0f0f0;");
-        buttonContainer.getChildren().addAll(homeButton, crawlButton, processorButton, rankingButton, visualizerButton);
-
         // Add button actions
-        homeButton.setOnAction(e -> showingScene.showHomeScene());
-        crawlButton.setOnAction(e -> showingScene.showCrawlScene());
-        processorButton.setOnAction(e -> showingScene.showProcessorScene());
-        rankingButton.setOnAction(e -> showingScene.showRankingScene());
-        visualizerButton.setOnAction(e -> showingScene.showVisualizerScene());
+        homeButton.setOnAction(e -> mainApp.showHomeScene());
+        crawlButton.setOnAction(e -> mainApp.showCrawlScene());
+        processorButton.setOnAction(e -> mainApp.showProcessorScene());
+        rankingButton.setOnAction(e -> mainApp.showRankingScene());
+        visualizerButton.setOnAction(e -> mainApp.showVisualizerScene());
 
-        return buttonContainer;
+        this.getChildren().addAll(homeButton, crawlButton, processorButton, rankingButton, visualizerButton);
     }
 
-    public VBox getButtonContainerBox() {
-        return buttonContainer;
+    private void styleButtons() {
+        // Style all buttons
+        String buttonStyle = "-fx-font-size: 14px; -fx-min-width: 150px; -fx-min-height: 40px;";
+        for (var node : this.getChildren()) {
+            if (node instanceof Button) {
+                ((Button) node).setStyle(buttonStyle);
+            }
+        }
+
+        this.setSpacing(10);
+        this.setPadding(new Insets(15));
+        this.setStyle("-fx-background-color: #f0f0f0;");
     }
 }
